@@ -24,109 +24,51 @@ export function EventLandingPage({ config }: EventLandingPageProps) {
 
   const theme = determineTheme(config.branding.toneKeywords);
 
-  // MOCK DATA for display purposes until real content generation is wired up
-  
-  // Speakers
-  const mockSpeakers = [
-    {
-      name: "Elena Rigby",
-      role: "Chief Product Officer",
-      company: "FutureRay",
-      imageUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=800",
-      bio: "Elena is a visionary product leader who has scaled platforms to millions of users.",
-    },
-    {
-      name: "David Chen",
-      role: "Founding Partner",
-      company: "Horizon Ventures",
-      imageUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=800",
-      bio: "David invests in deep tech and AI infrastructure shaping the next decade.",
-    },
-    {
-      name: "Sarah Jenkins",
-      role: "AI Ethics Researcher",
-      company: "Open Institute",
-      imageUrl: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=800",
-      bio: "Sarah's work focuses on the intersection of human values and machine learning systems.",
-    },
-    {
-      name: "Marcus Johnson",
-      role: "CTO",
-      company: "Velocite Systems",
-      imageUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=800",
-      bio: "Marcus is an expert in distributed systems and cloud native architectures.",
-    }
-  ];
+  // Map generated content to component-compatible formats
+  const speakers = config.content.speakers.map(speaker => ({
+    name: speaker.name,
+    role: speaker.role,
+    company: speaker.company,
+    imageUrl: speaker.imageUrl,
+    bio: speaker.bio,
+  }));
 
-  // Schedule
-  const mockSessions = [
-    {
-      id: "1",
-      time: "09:00 AM",
-      title: "Opening Keynote: The Future of Connection",
-      speaker: { name: "Elena Rigby", avatar: mockSpeakers[0].imageUrl, role: "CPO, FutureRay" },
-      track: "Main Stage" as const,
-      isWide: true,
+  const sessions = config.content.schedule.map(session => ({
+    id: session.id,
+    time: session.time,
+    title: session.title,
+    speaker: {
+      name: session.speakerName,
+      avatar: speakers.find(s => s.name === session.speakerName)?.imageUrl || "",
+      role: session.speakerRole,
     },
-    {
-      id: "2",
-      time: "10:30 AM",
-      title: "Building Community in the Digital Age",
-      speaker: { name: "David Chen", avatar: mockSpeakers[1].imageUrl, role: "Partner, Horizon" },
-      track: "Workshop" as const,
-    },
-    {
-      id: "3",
-      time: "10:30 AM",
-      title: "Networking & Coffee Break",
-      speaker: { name: "Hosts", avatar: "", role: "Rhiz Team" },
-      track: "Networking" as const,
-    },
-    {
-      id: "4",
-      time: "01:00 PM",
-      title: "AI & Ethics Panel",
-      speaker: { name: "Sarah Jenkins", avatar: mockSpeakers[2].imageUrl, role: "Researcher, Open Institute" },
-      track: "Main Stage" as const,
-      isWide: true,
-    },
-    {
-      id: "5",
-      time: "03:00 PM",
-      title: "Scaling Distributed Systems",
-      speaker: { name: "Marcus Johnson", avatar: mockSpeakers[3].imageUrl, role: "CTO, Velocite" },
-      track: "Workshop" as const,
-    }
-  ];
+    track: session.track as "Main Stage" | "Workshop" | "Networking",
+    isWide: session.isWide,
+  }));
 
-  // Attendees for Networking
-  const mockAttendees = [
-    { id: "1", imageFromUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200", interests: ["AI", "Design"], name: "Alice" },
-    { id: "2", imageFromUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=200", interests: ["Tech", "Startup"], name: "Bob" },
-    { id: "3", imageFromUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=200", interests: ["Investing"], name: "Charlie" },
-    { id: "4", imageFromUrl: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=200", interests: ["Music"], name: "Diana" },
-    { id: "5", imageFromUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200", interests: ["Code"], name: "Eve" },
-    { id: "6", imageFromUrl: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=200", interests: ["Design"], name: "Frank" },
-    { id: "7", imageFromUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200", interests: ["AI"], name: "Grace" },
-  ];
+  const attendees = config.content.sampleAttendees.map(attendee => ({
+    id: attendee.id,
+    imageFromUrl: attendee.imageUrl,
+    interests: attendee.interests,
+    name: attendee.name,
+  }));
 
   return (
     <div className="w-full bg-white dark:bg-black min-h-screen">
        {/* Hero Section */}
        <HeroSection 
-         // Fallback values since config doesn't have appName/tagline yet
-         title={"Rhiz Event"}
-         subtitle={"An immersive experience designed for connection."}
-         date="Oct 12-14, 2025"
-         location="San Francisco, CA"
+         title={config.content.eventName}
+         subtitle={config.content.tagline}
+         date={config.content.date}
+         location={config.content.location}
          primaryAction={{ label: "Get Tickets", onClick: () => alert("Ticket flow placeholder") }}
          theme={theme}
        />
        
        {/* Speakers Section */}
        <SpeakerSpotlight 
-         speakers={mockSpeakers}
-         layout="carousel" // Could be made dynamic based on config later
+         speakers={speakers}
+         layout="carousel"
        />
 
        {/* Schedule Section */}
@@ -137,7 +79,7 @@ export function EventLandingPage({ config }: EventLandingPageProps) {
                Curated sessions designed to inspire and connect.
              </p>
           </div>
-          <ScheduleGrid sessions={mockSessions} />
+          <ScheduleGrid sessions={sessions} />
        </section>
 
        {/* Networking Preview Section */}
@@ -158,7 +100,7 @@ export function EventLandingPage({ config }: EventLandingPageProps) {
              </div>
              <div className="relative">
                 <NetworkingPreview 
-                  featuredAttendees={mockAttendees}
+                  featuredAttendees={attendees}
                   totalCount={500}
                   matchmakingEnabled={config.matchmakingConfig.enabled}
                 />

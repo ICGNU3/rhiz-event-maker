@@ -83,6 +83,18 @@ export interface EventAppConfig {
   relationshipFeatures: RelationshipFeatures
   branding: Branding
   designNotes: string
+  content: EventContent
+  
+}
+
+export interface EventContent {
+  eventName: string
+  tagline: string
+  date: string
+  location: string
+  speakers: Speaker[]
+  schedule: ScheduleSession[]
+  sampleAttendees: SampleAttendee[]
   
 }
 
@@ -101,9 +113,37 @@ export interface RelationshipFeatures {
   
 }
 
+export interface SampleAttendee {
+  id: string
+  name: string
+  imageUrl: string
+  interests: string[]
+  
+}
+
+export interface ScheduleSession {
+  id: string
+  time: string
+  title: string
+  speakerName: string
+  speakerRole: string
+  track: string
+  isWide: boolean
+  
+}
+
 export interface SessionConfig {
   tracksEnabled: boolean
   maxConcurrentSessions: number
   sessionTypes: string[]
+  
+}
+
+export interface Speaker {
+  name: string
+  role: string
+  company: string
+  imageUrl: string
+  bio: string
   
 }

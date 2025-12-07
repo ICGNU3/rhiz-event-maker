@@ -20,7 +20,7 @@ $ pnpm add @boundaryml/baml
 
 import type { Image, Audio, Pdf, Video } from "@boundaryml/baml"
 import type { Checked, Check } from "./types"
-import type {  AttendeeProfile,  Branding,  ConnectionReason,  EngagementConfig,  EventAppConfig,  MatchmakingConfig,  RelationshipFeatures,  SessionConfig } from "./types"
+import type {  AttendeeProfile,  Branding,  ConnectionReason,  EngagementConfig,  EventAppConfig,  EventContent,  MatchmakingConfig,  RelationshipFeatures,  SampleAttendee,  ScheduleSession,  SessionConfig,  Speaker } from "./types"
 import type * as types from "./types"
 
 /******************************************************************************
@@ -64,6 +64,16 @@ export namespace partial_types {
       relationshipFeatures?: RelationshipFeatures | null
       branding?: Branding | null
       designNotes?: string | null
+      content?: EventContent | null
+    }
+    export interface EventContent {
+      eventName?: string | null
+      tagline?: string | null
+      date?: string | null
+      location?: string | null
+      speakers: Speaker[]
+      schedule: ScheduleSession[]
+      sampleAttendees: SampleAttendee[]
     }
     export interface MatchmakingConfig {
       enabled?: boolean | null
@@ -76,9 +86,31 @@ export namespace partial_types {
       warmPathHintsEnabled?: boolean | null
       introRequestsEnabled?: boolean | null
     }
+    export interface SampleAttendee {
+      id?: string | null
+      name?: string | null
+      imageUrl?: string | null
+      interests: string[]
+    }
+    export interface ScheduleSession {
+      id?: string | null
+      time?: string | null
+      title?: string | null
+      speakerName?: string | null
+      speakerRole?: string | null
+      track?: string | null
+      isWide?: boolean | null
+    }
     export interface SessionConfig {
       tracksEnabled?: boolean | null
       maxConcurrentSessions?: number | null
       sessionTypes: string[]
+    }
+    export interface Speaker {
+      name?: string | null
+      role?: string | null
+      company?: string | null
+      imageUrl?: string | null
+      bio?: string | null
     }
 }

@@ -24,7 +24,7 @@ import { toBamlError, BamlStream, BamlAbortError, Collector } from "@boundaryml/
 import type { Checked, Check, RecursivePartialNull as MovedRecursivePartialNull } from "./types"
 import type { partial_types } from "./partial_types"
 import type * as types from "./types"
-import type {AttendeeProfile, Branding, ConnectionReason, EngagementConfig, EventAppConfig, MatchmakingConfig, RelationshipFeatures, SessionConfig} from "./types"
+import type {AttendeeProfile, Branding, ConnectionReason, EngagementConfig, EventAppConfig, EventContent, MatchmakingConfig, RelationshipFeatures, SampleAttendee, ScheduleSession, SessionConfig, Speaker} from "./types"
 import type TypeBuilder from "./type_builder"
 import { AsyncHttpRequest, AsyncHttpStreamRequest } from "./async_request"
 import { LlmResponseParser, LlmStreamParser } from "./parser"
@@ -193,7 +193,7 @@ export type RecursivePartialNull<T> = MovedRecursivePartialNull<T>
             }
             
         async GenerateEventAppConfig(
-        eventBasics: string,goals: string[],audience: string,relationshipIntent: string,sessionShape: string,matchmakingAppetite: string,tools: string,tone: string,
+        eventBasics: string,eventDate: string,eventLocation: string,goals: string[],audience: string,relationshipIntent: string,sessionShape: string,matchmakingAppetite: string,tools: string,tone: string,
         __baml_options__?: BamlCallOptions<never>
         ): Promise<types.EventAppConfig> {
           try {
@@ -207,7 +207,7 @@ export type RecursivePartialNull<T> = MovedRecursivePartialNull<T>
           // Check if onTick is provided - route through streaming if so
           if (options.onTick) {
           const stream = this.stream.GenerateEventAppConfig(
-          eventBasics,goals,audience,relationshipIntent,sessionShape,matchmakingAppetite,tools,tone,
+          eventBasics,eventDate,eventLocation,goals,audience,relationshipIntent,sessionShape,matchmakingAppetite,tools,tone,
           __baml_options__
           );
 
@@ -223,7 +223,7 @@ export type RecursivePartialNull<T> = MovedRecursivePartialNull<T>
             const raw = await this.runtime.callFunction(
             "GenerateEventAppConfig",
             {
-            "eventBasics": eventBasics,"goals": goals,"audience": audience,"relationshipIntent": relationshipIntent,"sessionShape": sessionShape,"matchmakingAppetite": matchmakingAppetite,"tools": tools,"tone": tone
+            "eventBasics": eventBasics,"eventDate": eventDate,"eventLocation": eventLocation,"goals": goals,"audience": audience,"relationshipIntent": relationshipIntent,"sessionShape": sessionShape,"matchmakingAppetite": matchmakingAppetite,"tools": tools,"tone": tone
             },
             this.ctxManager.cloneContext(),
             options.tb?.__tb(),
@@ -387,7 +387,7 @@ export type RecursivePartialNull<T> = MovedRecursivePartialNull<T>
                   }
                   
             GenerateEventAppConfig(
-            eventBasics: string,goals: string[],audience: string,relationshipIntent: string,sessionShape: string,matchmakingAppetite: string,tools: string,tone: string,
+            eventBasics: string,eventDate: string,eventLocation: string,goals: string[],audience: string,relationshipIntent: string,sessionShape: string,matchmakingAppetite: string,tools: string,tone: string,
             __baml_options__?: BamlCallOptions<never>
             ): BamlStream<partial_types.EventAppConfig, types.EventAppConfig>
               {
@@ -428,7 +428,7 @@ export type RecursivePartialNull<T> = MovedRecursivePartialNull<T>
                 const raw = this.runtime.streamFunction(
                 "GenerateEventAppConfig",
                 {
-                "eventBasics": eventBasics,"goals": goals,"audience": audience,"relationshipIntent": relationshipIntent,"sessionShape": sessionShape,"matchmakingAppetite": matchmakingAppetite,"tools": tools,"tone": tone
+                "eventBasics": eventBasics,"eventDate": eventDate,"eventLocation": eventLocation,"goals": goals,"audience": audience,"relationshipIntent": relationshipIntent,"sessionShape": sessionShape,"matchmakingAppetite": matchmakingAppetite,"tools": tools,"tone": tone
                 },
                 undefined,
                 this.ctxManager.cloneContext(),

@@ -35,20 +35,28 @@ export default class TypeBuilder {
     
     EngagementConfig: ClassViewer<'EngagementConfig', "chatEnabled" | "qnaEnabled" | "pollsEnabled" | "liveFeedEnabled">;
     
-    EventAppConfig: ClassViewer<'EventAppConfig', "primaryGoals" | "matchmakingConfig" | "sessionConfig" | "engagementConfig" | "relationshipFeatures" | "branding" | "designNotes">;
+    EventAppConfig: ClassViewer<'EventAppConfig', "primaryGoals" | "matchmakingConfig" | "sessionConfig" | "engagementConfig" | "relationshipFeatures" | "branding" | "designNotes" | "content">;
+    
+    EventContent: ClassViewer<'EventContent', "eventName" | "tagline" | "date" | "location" | "speakers" | "schedule" | "sampleAttendees">;
     
     MatchmakingConfig: ClassViewer<'MatchmakingConfig', "enabled" | "inputSignals" | "matchTypes" | "meetingDurations">;
     
     RelationshipFeatures: ClassViewer<'RelationshipFeatures', "relationshipScoresVisible" | "warmPathHintsEnabled" | "introRequestsEnabled">;
     
+    SampleAttendee: ClassViewer<'SampleAttendee', "id" | "name" | "imageUrl" | "interests">;
+    
+    ScheduleSession: ClassViewer<'ScheduleSession', "id" | "time" | "title" | "speakerName" | "speakerRole" | "track" | "isWide">;
+    
     SessionConfig: ClassViewer<'SessionConfig', "tracksEnabled" | "maxConcurrentSessions" | "sessionTypes">;
+    
+    Speaker: ClassViewer<'Speaker', "name" | "role" | "company" | "imageUrl" | "bio">;
     
     
 
     constructor() {
         this.tb = new _TypeBuilder({
           classes: new Set([
-            "AttendeeProfile","Branding","ConnectionReason","EngagementConfig","EventAppConfig","MatchmakingConfig","RelationshipFeatures","SessionConfig",
+            "AttendeeProfile","Branding","ConnectionReason","EngagementConfig","EventAppConfig","EventContent","MatchmakingConfig","RelationshipFeatures","SampleAttendee","ScheduleSession","SessionConfig","Speaker",
           ]),
           enums: new Set([
             
@@ -73,7 +81,11 @@ export default class TypeBuilder {
         ]);
         
         this.EventAppConfig = this.tb.classViewer("EventAppConfig", [
-          "primaryGoals","matchmakingConfig","sessionConfig","engagementConfig","relationshipFeatures","branding","designNotes",
+          "primaryGoals","matchmakingConfig","sessionConfig","engagementConfig","relationshipFeatures","branding","designNotes","content",
+        ]);
+        
+        this.EventContent = this.tb.classViewer("EventContent", [
+          "eventName","tagline","date","location","speakers","schedule","sampleAttendees",
         ]);
         
         this.MatchmakingConfig = this.tb.classViewer("MatchmakingConfig", [
@@ -84,8 +96,20 @@ export default class TypeBuilder {
           "relationshipScoresVisible","warmPathHintsEnabled","introRequestsEnabled",
         ]);
         
+        this.SampleAttendee = this.tb.classViewer("SampleAttendee", [
+          "id","name","imageUrl","interests",
+        ]);
+        
+        this.ScheduleSession = this.tb.classViewer("ScheduleSession", [
+          "id","time","title","speakerName","speakerRole","track","isWide",
+        ]);
+        
         this.SessionConfig = this.tb.classViewer("SessionConfig", [
           "tracksEnabled","maxConcurrentSessions","sessionTypes",
+        ]);
+        
+        this.Speaker = this.tb.classViewer("Speaker", [
+          "name","role","company","imageUrl","bio",
         ]);
         
         

@@ -22,7 +22,7 @@ import type { BamlRuntime, BamlCtxManager, ClientRegistry, Image, Audio, Pdf, Vi
 import { toBamlError, HTTPRequest } from "@boundaryml/baml"
 import type { Checked, Check } from "./types"
 import type * as types from "./types"
-import type {AttendeeProfile, Branding, ConnectionReason, EngagementConfig, EventAppConfig, MatchmakingConfig, RelationshipFeatures, SessionConfig} from "./types"
+import type {AttendeeProfile, Branding, ConnectionReason, EngagementConfig, EventAppConfig, EventContent, MatchmakingConfig, RelationshipFeatures, SampleAttendee, ScheduleSession, SessionConfig, Speaker} from "./types"
 import type TypeBuilder from "./type_builder"
 import type * as events from "./events"
 
@@ -88,7 +88,7 @@ export class HttpRequest {
   }
   
   GenerateEventAppConfig(
-      eventBasics: string,goals: string[],audience: string,relationshipIntent: string,sessionShape: string,matchmakingAppetite: string,tools: string,tone: string,
+      eventBasics: string,eventDate: string,eventLocation: string,goals: string[],audience: string,relationshipIntent: string,sessionShape: string,matchmakingAppetite: string,tools: string,tone: string,
       __baml_options__?: BamlCallOptions<never>
   ): HTTPRequest {
     try {
@@ -99,7 +99,7 @@ export class HttpRequest {
       return this.runtime.buildRequestSync(
         "GenerateEventAppConfig",
         {
-          "eventBasics": eventBasics,"goals": goals,"audience": audience,"relationshipIntent": relationshipIntent,"sessionShape": sessionShape,"matchmakingAppetite": matchmakingAppetite,"tools": tools,"tone": tone
+          "eventBasics": eventBasics,"eventDate": eventDate,"eventLocation": eventLocation,"goals": goals,"audience": audience,"relationshipIntent": relationshipIntent,"sessionShape": sessionShape,"matchmakingAppetite": matchmakingAppetite,"tools": tools,"tone": tone
         },
         this.ctxManager.cloneContext(),
         __baml_options__?.tb?.__tb(),
@@ -169,7 +169,7 @@ export class HttpStreamRequest {
   }
   
   GenerateEventAppConfig(
-      eventBasics: string,goals: string[],audience: string,relationshipIntent: string,sessionShape: string,matchmakingAppetite: string,tools: string,tone: string,
+      eventBasics: string,eventDate: string,eventLocation: string,goals: string[],audience: string,relationshipIntent: string,sessionShape: string,matchmakingAppetite: string,tools: string,tone: string,
       __baml_options__?: BamlCallOptions<never>
   ): HTTPRequest {
     try {
@@ -180,7 +180,7 @@ export class HttpStreamRequest {
       return this.runtime.buildRequestSync(
         "GenerateEventAppConfig",
         {
-          "eventBasics": eventBasics,"goals": goals,"audience": audience,"relationshipIntent": relationshipIntent,"sessionShape": sessionShape,"matchmakingAppetite": matchmakingAppetite,"tools": tools,"tone": tone
+          "eventBasics": eventBasics,"eventDate": eventDate,"eventLocation": eventLocation,"goals": goals,"audience": audience,"relationshipIntent": relationshipIntent,"sessionShape": sessionShape,"matchmakingAppetite": matchmakingAppetite,"tools": tools,"tone": tone
         },
         this.ctxManager.cloneContext(),
         __baml_options__?.tb?.__tb(),

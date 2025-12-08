@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useCallback } from "react";
 import { generateEventConfig } from "./actions";
-import { EventAppConfig } from "@/lib/baml_client/baml_client/types";
+import { EventAppConfig } from "@/lib/types";
 import { EventLandingPage } from "./components/EventLandingPage";
 import { getUserFriendlyMessage } from "@/lib/errors";
 

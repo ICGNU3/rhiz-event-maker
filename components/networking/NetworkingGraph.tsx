@@ -284,22 +284,26 @@ export function NetworkingGraph({
     <div className="relative w-full h-[400px] md:h-[600px] flex items-center justify-center overflow-hidden bg-zinc-950 rounded-3xl border border-white/5">
       <GradientField />
       
-      {isLoading && <LoadingState />}
-
-      {/* Orbit Container handles rotation */}
-      <motion.div 
-         className="absolute inset-0 flex items-center justify-center"
-         animate={{ opacity: isLoading ? 0.2 : 1, scale: isLoading ? 0.9 : 1 }}
-         transition={{ duration: 0.8 }}
-      >
-         {/* Orbit 1 - Inner */}
-        <motion.div
-           className="absolute w-[200px] h-[200px] md:w-[400px] md:h-[400px] rounded-full border border-white/5"
-           animate={{ rotate: 360 }}
-           transition={TRANSITIONS.orbit(60)}
-        >
-             {orbit1.map((attendee, i) => {
-                 const angle = (i / orbit1.length) * 360;
+      {error ? (
+        <GraphErrorState onRetry={onRetry} />
+      ) : (
+        <>
+          {isLoading && <LoadingState />}
+    
+          {/* Orbit Container handles rotation */}
+          <motion.div 
+             className="absolute inset-0 flex items-center justify-center"
+             animate={{ opacity: isLoading ? 0.2 : 1, scale: isLoading ? 0.9 : 1 }}
+             transition={{ duration: 0.8 }}
+          >
+             {/* Orbit 1 - Inner */}
+            <motion.div
+               className="absolute w-[200px] h-[200px] md:w-[400px] md:h-[400px] rounded-full border border-white/5"
+               animate={{ rotate: 360 }}
+               transition={TRANSITIONS.orbit(60)}
+            >
+                 {orbit1.map((attendee, i) => {
+                     const angle = (i / orbit1.length) * 360;
                  const radian = (angle * Math.PI) / 180;
                  const x = Math.cos(radian) * orbit1Radius; 
                  const y = Math.sin(radian) * orbit1Radius; 
@@ -348,35 +352,38 @@ export function NetworkingGraph({
              })}
         </motion.div>
 
-      </motion.div>
-
-      {/* Center Node */}
-      <div className="relative z-10 flex flex-col items-center justify-center text-center pointer-events-none">
-         {matchmakingEnabled && (
-             <motion.div
-                initial={{ opacity: 0, y: 5 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1, delay: 0.5 }}
-                className="mb-4 pointer-events-auto"
-             >
-                 <div className="relative px-3 py-1 bg-zinc-900 rounded-full border border-white/10 flex items-center gap-2 shadow-2xl">
-                    <motion.div
-                        className="w-1.5 h-1.5 rounded-full bg-blue-500"
-                        animate={{ opacity: [0.4, 1, 0.4], scale: [1, 1.2, 1] }}
-                        transition={{ duration: 3, repeat: Infinity }}
-                    />
-                    <span className="text-[10px] uppercase tracking-widest text-zinc-400 font-medium">AI Match</span>
-                 </div>
-             </motion.div>
-         )}
-
-         <h3 className="text-3xl md:text-5xl font-light tracking-tight text-white mb-2">
-            Connect with <span className="font-medium text-transparent bg-clip-text bg-gradient-to-r from-zinc-200 to-zinc-500">{totalCount}+</span>
-         </h3>
-         <p className="text-zinc-500 text-sm md:text-base uppercase tracking-widest opacity-60">
-             Attendees
-         </p>
-      </div>
+          {/* Center Node */}
+          {!error && (
+           <div className="relative z-10 flex flex-col items-center justify-center text-center pointer-events-none">
+              {matchmakingEnabled && (
+                  <motion.div
+                     initial={{ opacity: 0, y: 5 }}
+                     animate={{ opacity: 1, y: 0 }}
+                     transition={{ duration: 1, delay: 0.5 }}
+                     className="mb-4 pointer-events-auto"
+                  >
+                      <div className="relative px-3 py-1 bg-zinc-900 rounded-full border border-white/10 flex items-center gap-2 shadow-2xl">
+                         <motion.div
+                             className="w-1.5 h-1.5 rounded-full bg-blue-500"
+                             animate={{ opacity: [0.4, 1, 0.4], scale: [1, 1.2, 1] }}
+                             transition={{ duration: 3, repeat: Infinity }}
+                         />
+                         <span className="text-[10px] uppercase tracking-widest text-zinc-400 font-medium">AI Match</span>
+                      </div>
+                  </motion.div>
+              )}
+     
+              <h3 className="text-3xl md:text-5xl font-light tracking-tight text-white mb-2">
+                 Connect with <span className="font-medium text-transparent bg-clip-text bg-gradient-to-r from-zinc-200 to-zinc-500">{totalCount}+</span>
+              </h3>
+              <p className="text-zinc-500 text-sm md:text-base uppercase tracking-widest opacity-60">
+                  Attendees
+              </p>
+           </div>
+          )}
+        </motion.div>
+        </>
+      )}
 
     </div>
   );

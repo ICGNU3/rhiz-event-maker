@@ -202,14 +202,6 @@ const AvatarNode = ({
   );
 };
 
-export function NetworkingGraph({
-  featuredAttendees = [],
-  relationships = [],
-  totalCount,
-  matchmakingEnabled,
-  opportunities = [],
-  onNodeClick,
-  isLoading = false,
 // New Error State Component
 const GraphErrorState = ({ onRetry }: { onRetry?: () => void }) => (
   <div className="absolute inset-0 flex flex-col items-center justify-center z-20 text-center px-4">

@@ -12,11 +12,11 @@ The SDK wrappers (`lib/rhizClient.ts`) are implemented. We now need to wire them
 - [ ] **Live Networking Graph**
 
   - [ ] Fetch real relationships using `rhizClient.getSuggestedConnections`.
-  - [ ] Update `EventLandingPage` (or a wrapper) to pass this live data to `NetworkingPreview`.
-  - [ ] Visualize "Edges": connection lines between nodes based on `strength_score`.
+  - [x] Update `EventLandingPage` (or a wrapper) to pass this live data to `NetworkingPreview`.
+  - [x] Visualize "Edges": connection lines between nodes based on `strength_score`.
 
 - [ ] **Interaction Tracking**
-  - [ ] Call `rhizClient.recordInteraction` when users click on speakers or attendees.
+  - [x] Call `rhizClient.recordInteraction` when users click on speakers or attendees.
 
 ## 2. Graph Polish & Interactivity
 

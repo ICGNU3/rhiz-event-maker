@@ -31,6 +31,7 @@ export function EventLandingPage({ config }: EventLandingPageProps) {
   // State for live Rhiz data
   const [relationships, setRelationships] = React.useState<RelationshipDetail[]>([]);
   const [opportunities, setOpportunities] = React.useState<{ suggestion: IntroductionSuggestion; candidate: PersonRead }[]>([]);
+  const [currentUserId, setCurrentUserId] = React.useState<string | null>(null);
   const [isSyncing, setIsSyncing] = React.useState(false);
 
   // Map generated content to component-compatible formats
@@ -75,6 +76,25 @@ export function EventLandingPage({ config }: EventLandingPageProps) {
     tags: attendee.interests,
   } as any as PersonRead));
 
+  // Handle node interaction
+  const handleNodeClick = async (attendee: Attendee) => {
+    if (!currentUserId) return;
+    
+    console.log("Rhiz: Recording interaction with", attendee.person_id);
+    try {
+      await rhizClient.recordInteraction({
+        eventId: "default-event",
+        fromIdentityId: currentUserId,
+        toIdentityId: attendee.person_id,
+        type: "view_profile",
+        metadata: { source: "networking_graph" }
+      });
+      alert(`Interaction recorded: Viewed ${attendee.preferred_name || 'Attendee'}`);
+    } catch (e) {
+      console.error("Failed to record interaction", e);
+    }
+  };
+
   // Effect: Ingest attendees & fetch relationships
   React.useEffect(() => {
     const syncRhiz = async () => {
@@ -84,6 +104,7 @@ export function EventLandingPage({ config }: EventLandingPageProps) {
         const currentUser = await rhizClient.ensureIdentity({
           name: "Event Organizer", // In a real app, this would come from auth
         });
+        setCurrentUserId(currentUser.id);
 
         // 2. Ingest generated attendees into Protocol
         // We map the config attendees to the format expected by ingest
@@ -185,6 +206,7 @@ export function EventLandingPage({ config }: EventLandingPageProps) {
                   matchmakingEnabled={config.matchmakingConfig.enabled}
                   relationships={relationships}
                   opportunities={opportunities}
+                  onNodeClick={handleNodeClick}
                 />
              </div>
           </div>

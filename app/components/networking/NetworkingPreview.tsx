@@ -2,24 +2,24 @@
 
 import { motion } from "framer-motion";
 import clsx from "clsx";
-import { useMemo } from "react";
+import { useState } from "react";
 import { EASING, TRANSITIONS } from "./motion-utils";
 import { User } from "lucide-react";
+import { RelationshipDetail, PersonRead } from "@/lib/protocol-sdk/types";
 
-export interface Attendee {
-  id: string;
-  imageFromUrl: string;
-  interests: string[];
+export interface Attendee extends PersonRead {
+  imageFromUrl?: string;
+  interests?: string[];
 }
 
 export interface NetworkingProps {
   featuredAttendees: Attendee[];
+  relationships?: RelationshipDetail[];
   totalCount: number;
   matchmakingEnabled: boolean;
+  opportunities?: unknown[]; 
+  onNodeClick?: (attendee: Attendee) => void;
 }
-
-const ORBIT_RADII = [140, 260]; // Mobile radii
-const ORBIT_RADII_DESKTOP = [200, 360];
 
 const GradientField = () => (
   <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -33,36 +33,72 @@ const GradientField = () => (
   </div>
 );
 
+const EdgeLine = ({
+  x,
+  y,
+  strength = 0,
+}: {
+  x: number;
+  y: number;
+  strength?: number;
+}) => {
+  if (strength <= 0) return null;
+
+  return (
+    <motion.svg
+      className="absolute top-1/2 left-1/2 overflow-visible pointer-events-none"
+      style={{ x: 0, y: 0 }} // Center anchor
+      initial={{ opacity: 0 }}
+      animate={{ opacity: strength * 0.8 }} // Max opacity 0.8 based on strength
+      transition={{ duration: 1.5, delay: 0.5 }}
+    >
+      <line
+        x1={0}
+        y1={0}
+        x2={x}
+        y2={y}
+        stroke="url(#edge-gradient)"
+        strokeWidth={1 + strength * 2} // Thicker for stronger ties
+        strokeDasharray="4 4"
+        className="opacity-60"
+      />
+      <defs>
+        <linearGradient id="edge-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="rgba(255,255,255,0)" />
+          <stop offset="50%" stopColor="rgba(59, 130, 246, 0.5)" /> {/* Blue tint */}
+          <stop offset="100%" stopColor="rgba(255,255,255,0.1)" />
+        </linearGradient>
+      </defs>
+    </motion.svg>
+  );
+};
+
 const AvatarNode = ({
   attendee,
-  index,
-  totalInOrbit,
-  radius,
+  x,
+  y,
   delayOffset,
+  onClick,
 }: {
-  attendee: Attendee | null; // null for placeholder
-  index: number;
-  totalInOrbit: number;
-  radius: number;
+  attendee: Attendee | null;
+  x: number;
+  y: number;
   delayOffset: number;
+  onClick?: () => void;
 }) => {
-  const angle = (index / totalInOrbit) * 360;
-  // Convert polar to cartesian
-  const radian = (angle * Math.PI) / 180;
-  const x = Math.cos(radian) * radius;
-  const y = Math.sin(radian) * radius;
-
-  // Personalized organic motion parameters
-  const floatDuration = useMemo(() => 3.2 + Math.random() * 3.6, []);
-  const randomY = useMemo(() => (Math.random() - 0.5) * 15, []);
+  // Personalized organic motion parameters using stable state
+  const [randomValues] = useState(() => ({
+    floatDuration: 3.2 + Math.random() * 3.6,
+    randomY: (Math.random() - 0.5) * 15
+  }));
 
   return (
     <motion.div
       className="absolute top-1/2 left-1/2"
-      initial={{ x, y, opacity: 0, scale: 0 }}
+      initial={{ x, y: y, opacity: 0, scale: 0 }}
       animate={{
         x,
-        y: y + randomY, // Add slight vertical drift base
+        y: y + randomValues.randomY,
         opacity: 1,
         scale: 1,
       }}
@@ -70,62 +106,84 @@ const AvatarNode = ({
         duration: 1.2,
         delay: delayOffset * 0.1,
         ease: EASING.living,
-        // Continuous float
         y: {
-           duration: floatDuration,
+           duration: randomValues.floatDuration,
            repeat: Infinity,
            repeatType: "reverse",
            ease: "easeInOut"
         }
       }}
     >
-        {/* Node Frame */}
-      <div className={clsx(
-          "relative w-10 h-10 md:w-14 md:h-14 rounded-full p-[1px]",
+      {/* Node Frame */}
+      <button 
+        onClick={onClick}
+        className={clsx(
+          "relative w-10 h-10 md:w-14 md:h-14 rounded-full p-[1px] transition-transform duration-300 hover:scale-110 focus:outline-hidden focus:ring-2 focus:ring-blue-500/50",
           "bg-gradient-to-b from-white/20 to-white/5",
-          "shadow-lg shadow-black/10"
+          "shadow-lg shadow-black/10 group"
       )}>
-        <div className="w-full h-full rounded-full overflow-hidden bg-zinc-900 border border-white/5">
-            {attendee ? (
+        <div className="w-full h-full rounded-full overflow-hidden bg-zinc-900 border border-white/5 relative z-10">
+            {attendee?.imageFromUrl ? (
                  <img
                  src={attendee.imageFromUrl}
-                 alt="Attendee"
+                 alt={attendee.preferred_name || "Attendee"}
                  className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity"
                  onError={(e) => {
-                     // Fallback to initial
                      e.currentTarget.style.display = 'none';
                      e.currentTarget.parentElement?.classList.add('flex', 'items-center', 'justify-center');
                  }}
                />
             ) : null}
             
-            {/* Fallback / Placeholder content rendered if img fails or is placeholder */}
             <div className={clsx(
-                "w-full h-full flex items-center justify-center bg-zinc-800 text-zinc-500 text-xs font-medium",
-                attendee ? "hidden peer-hover:flex" : "flex" // Hide if real image loaded successfully logic would require state, utilizing simplified layout here
+                "w-full h-full flex items-center justify-center bg-zinc-800 text-zinc-500 text-xs font-medium absolute inset-0",
+                attendee?.imageFromUrl ? "-z-10" : "" // Place behind if image exists (fallback logic handled by onError usually, but this is safe)
             )}>
-              {attendee ? "U" : <User size={14} className="opacity-50" />}
+              {attendee ? (
+                <span className="text-white/80">{attendee.preferred_name?.[0] || "U"}</span>
+              ) : (
+                <User size={14} className="opacity-50" />
+              )}
             </div>
         </div>
-      </div>
+        
+        {/* Glow effect on hover */}
+        <div className="absolute inset-0 rounded-full bg-blue-500/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
+      </button>
     </motion.div>
   );
 };
 
+
 export default function NetworkingPreview({
   featuredAttendees = [],
+  relationships = [],
   totalCount,
   matchmakingEnabled,
+  onNodeClick,
 }: NetworkingProps) {
-  // Placeholder generation if empty
-  const displayAttendees = useMemo(() => {
-     if (featuredAttendees.length > 0) return featuredAttendees;
-     return Array(7).fill(null);
-  }, [featuredAttendees]);
+  
+  // Fill with nulls if not enough attendees to make it look populated
+  const [displayAttendees] = useState(() => {
+     let list: (Attendee | null)[] = [...featuredAttendees];
+     if (list.length < 8) {
+       const needed = 8 - list.length;
+       list = [...list, ...Array(needed).fill(null)];
+     }
+     return list;
+  });
 
   // Split into 2 orbits
-  const orbit1 = displayAttendees.slice(0, Math.ceil(displayAttendees.length / 2));
-  const orbit2 = displayAttendees.slice(Math.ceil(displayAttendees.length / 2));
+  const orbit1Count = Math.ceil(displayAttendees.length * 0.4); // ~40% inner
+  const orbit1 = displayAttendees.slice(0, orbit1Count);
+  const orbit2 = displayAttendees.slice(orbit1Count);
+
+  // Helper to find relationship strength for an attendee
+  const getStrength = (attendee: Attendee | null) => {
+    if (!attendee) return 0;
+    const rel = relationships.find(r => r.target_person_id === attendee.person_id);
+    return rel ? rel.strength_score : 0;
+  };
 
   return (
     <div className="relative w-full h-[500px] md:h-[600px] flex items-center justify-center overflow-hidden bg-zinc-950 rounded-3xl border border-white/5">
@@ -139,16 +197,27 @@ export default function NetworkingPreview({
            animate={{ rotate: 360 }}
            transition={TRANSITIONS.orbit(60)}
         >
-             {orbit1.map((attendee, i) => (
-                 <AvatarNode
-                    key={attendee?.id || `p1-${i}`}
-                    attendee={attendee}
-                    index={i}
-                    totalInOrbit={orbit1.length}
-                    radius={140} // Will need responsive logic ideally, simplifying for "Lego block"
-                    delayOffset={i}
-                 />
-             ))}
+             {orbit1.map((attendee, i) => {
+                 // const radius = 140; 
+                 
+                 const angle = (i / orbit1.length) * 360;
+                 const radian = (angle * Math.PI) / 180;
+                 const x = Math.cos(radian) * 140; 
+                 const y = Math.sin(radian) * 140; 
+
+                 return (
+                   <div key={i} className="absolute top-1/2 left-1/2 w-0 h-0"> {/* Anchor */}
+                      <EdgeLine x={x} y={y} strength={getStrength(attendee)} />
+                      <AvatarNode
+                        attendee={attendee}
+                        x={x}
+                        y={y}
+                        delayOffset={i}
+                        onClick={() => attendee && onNodeClick?.(attendee)}
+                      />
+                   </div>
+                 );
+             })}
         </motion.div>
 
          {/* Orbit 2 - Outer */}
@@ -157,28 +226,37 @@ export default function NetworkingPreview({
            animate={{ rotate: -360 }}
            transition={TRANSITIONS.orbit(90)}
         >
-            {orbit2.map((attendee, i) => (
-                 <AvatarNode
-                    key={attendee?.id || `p2-${i}`}
-                    attendee={attendee}
-                    index={i}
-                    totalInOrbit={orbit2.length}
-                    radius={260}
-                    delayOffset={i + orbit1.length}
-                 />
-             ))}
+            {orbit2.map((attendee, i) => {
+                 const angle = (i / orbit2.length) * 360;
+                 const radian = (angle * Math.PI) / 180;
+                 const x = Math.cos(radian) * 260; // radius
+                 const y = Math.sin(radian) * 260;
+                 
+                 return (
+                   <div key={i} className="absolute top-1/2 left-1/2 w-0 h-0">
+                      <EdgeLine x={x} y={y} strength={getStrength(attendee)} />
+                      <AvatarNode
+                        attendee={attendee}
+                        x={x}
+                        y={y}
+                        delayOffset={i + orbit1.length}
+                        onClick={() => attendee && onNodeClick?.(attendee)}
+                      />
+                   </div>
+                 );
+             })}
         </motion.div>
 
       </div>
 
       {/* Center Node */}
-      <div className="relative z-10 flex flex-col items-center justify-center text-center">
+      <div className="relative z-10 flex flex-col items-center justify-center text-center pointer-events-none">
          {matchmakingEnabled && (
              <motion.div
                 initial={{ opacity: 0, y: 5 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1, delay: 0.5 }}
-                className="mb-4"
+                className="mb-4 pointer-events-auto"
              >
                  <div className="relative px-3 py-1 bg-zinc-900 rounded-full border border-white/10 flex items-center gap-2 shadow-2xl">
                     <motion.div

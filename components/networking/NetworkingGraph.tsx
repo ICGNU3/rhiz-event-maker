@@ -151,13 +151,13 @@ const AvatarNode = ({
 };
 
 
-export function NetworkingPreview({
+export function NetworkingGraph({
   featuredAttendees = [],
   relationships = [],
   totalCount,
   matchmakingEnabled,
   onNodeClick,
-}: NetworkingPreviewProps) {
+}: NetworkingGraphProps) {
   
   // Fill with nulls if not enough attendees to make it look populated
   const [displayAttendees] = useState(() => {

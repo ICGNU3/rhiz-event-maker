@@ -179,6 +179,7 @@ export type Session = {
   format: string;
   track?: string;
   room?: string;
+  capacity?: number;
   speakers: string[];
 };
 

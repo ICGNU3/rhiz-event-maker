@@ -6,7 +6,7 @@ The SDK wrappers (`lib/rhizClient.ts`) are implemented. We now need to wire them
 
 - [ ] **Data Ingestion**
 
-  - [ ] Call `rhizClient.ingestAttendees` when an event is finalized or loaded, populating the Protocol with the AI-generated attendees.
+  - [x] Call `rhizClient.ingestAttendees` when an event is finalized or loaded, populating the Protocol with the AI-generated attendees.
   - [ ] Ensure the current user has a Protocol Identity (`ensureIdentity`).
 
 - [ ] **Live Networking Graph**

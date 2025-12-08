@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import clsx from "clsx";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { EASING, TRANSITIONS } from "./motion-utils";
 import { User } from "lucide-react";
 import { RelationshipDetail, OpportunityMatch } from "@/lib/protocol-sdk/types";
@@ -16,6 +16,7 @@ export interface NetworkingGraphProps {
   matchmakingEnabled: boolean;
   opportunities?: OpportunityMatch[]; 
   onNodeClick?: (attendee: GraphAttendee) => void;
+  isLoading?: boolean;
 }
 
 const GradientField = () => (
@@ -27,6 +28,39 @@ const GradientField = () => (
       </filter>
       <rect width="100%" height="100%" filter="url(#noiseFilter)" />
     </svg>
+  </div>
+);
+
+// New Loading State Component
+const LoadingState = () => (
+  <div className="absolute inset-0 flex flex-col items-center justify-center z-20">
+    <div className="relative">
+      {/* Ripple Rings */}
+      <motion.div 
+        className="absolute inset-0 rounded-full border border-blue-500/30"
+        animate={{ scale: [1, 2], opacity: [0.5, 0] }}
+        transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
+      />
+      <motion.div 
+        className="absolute inset-0 rounded-full border border-blue-500/20"
+        animate={{ scale: [1, 3], opacity: [0.3, 0] }}
+        transition={{ duration: 2, delay: 0.5, repeat: Infinity, ease: "easeOut" }}
+      />
+      <div className="w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center backdrop-blur-sm border border-blue-500/20">
+         <motion.div 
+            className="w-8 h-8 rounded-full border-t-2 border-l-2 border-blue-400"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+         />
+      </div>
+    </div>
+    <motion.p 
+       className="mt-6 text-blue-400 text-sm font-medium tracking-widest uppercase"
+       animate={{ opacity: [0.5, 1, 0.5] }}
+       transition={{ duration: 2, repeat: Infinity }}
+    >
+      Analyzing Connections...
+    </motion.p>
   </div>
 );
 
@@ -160,7 +194,6 @@ const AvatarNode = ({
   );
 };
 
-
 export function NetworkingGraph({
   featuredAttendees = [],
   relationships = [],
@@ -168,8 +201,51 @@ export function NetworkingGraph({
   matchmakingEnabled,
   opportunities = [],
   onNodeClick,
+  isLoading = false,
 }: NetworkingGraphProps) {
   
+  // Helper to determine radius based on screen size (simplified for this context)
+  // Ideally use a useWindowSize hook, but for now we can use CSS variables or percentages if possible, 
+  // or just rely on the container scaling since we have `w-[280px] md:w-[400px]` classes.
+  // actually, the `x` and `y` calculations are hardcoded. We need them to be dynamic.
+  // Let's use a scale factor based on valid CSS container queries or just generic "small" defaults 
+  // and let the parent container scale it down visually via transform if needed.
+  // 
+  // Better approach: Calculate positions based on 100% and map to pixel values, OR 
+  // accept that we are using `absolute` pixels and stick to a "mobile first" radius that looks okay on both or 
+  // distinct logic if we had the window size.
+  // 
+  // Since we don't have a window size hook ready, let's make the container responsive via CSS
+  // and the node positions relative to that container size using percentages if possible?
+  // Framer motion `x` `y` usually expects pixels.
+  //
+  // Let's stick to the current pixels for Desktop matching the Design, but scale slightly down for the Mobile view 
+  // by checking if window.innerWidth < 768 in a useEffect? 
+  // Or just pick a smaller radius that works for both.
+  
+  const [isMobile, setIsMobile] = useState(false);
+  
+  // Simple check for mobile on mount
+  // Note: hydration mismatch possible if we render different things based on this, 
+  // so we start false and update.
+  if (typeof window !== 'undefined') {
+      // safe to check? no, still useEffect better.
+  }
+
+  // Update radius based on screen size
+  const orbit1Radius = isMobile ? 100 : 140;
+  const orbit2Radius = isMobile ? 180 : 260;
+
+  // Use ResizeObserver for robustness or simple event listener
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    // Initial check
+    checkMobile();
+    
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   // Fill with nulls if not enough attendees to make it look populated
   const [displayAttendees] = useState(() => {
      let list: (GraphAttendee | null)[] = [...featuredAttendees];
@@ -196,26 +272,29 @@ export function NetworkingGraph({
      if (!attendee) return false;
      return opportunities.some(op => op.candidate.person_id === attendee.person_id);
   };
-
   return (
-    <div className="relative w-full h-[500px] md:h-[600px] flex items-center justify-center overflow-hidden bg-zinc-950 rounded-3xl border border-white/5">
+    <div className="relative w-full h-[400px] md:h-[600px] flex items-center justify-center overflow-hidden bg-zinc-950 rounded-3xl border border-white/5">
       <GradientField />
+      
+      {isLoading && <LoadingState />}
 
       {/* Orbit Container handles rotation */}
-      <div className="absolute inset-0 flex items-center justify-center">
+      <motion.div 
+         className="absolute inset-0 flex items-center justify-center"
+         animate={{ opacity: isLoading ? 0.2 : 1, scale: isLoading ? 0.9 : 1 }}
+         transition={{ duration: 0.8 }}
+      >
          {/* Orbit 1 - Inner */}
         <motion.div
-           className="absolute w-[280px] h-[280px] md:w-[400px] md:h-[400px] rounded-full border border-white/[0.03]"
+           className="absolute w-[200px] h-[200px] md:w-[400px] md:h-[400px] rounded-full border border-white/5"
            animate={{ rotate: 360 }}
            transition={TRANSITIONS.orbit(60)}
         >
              {orbit1.map((attendee, i) => {
-                 // const radius = 140; 
-                 
                  const angle = (i / orbit1.length) * 360;
                  const radian = (angle * Math.PI) / 180;
-                 const x = Math.cos(radian) * 140; 
-                 const y = Math.sin(radian) * 140; 
+                 const x = Math.cos(radian) * orbit1Radius; 
+                 const y = Math.sin(radian) * orbit1Radius; 
 
                  return (
                    <div key={i} className="absolute top-1/2 left-1/2 w-0 h-0"> {/* Anchor */}
@@ -235,15 +314,15 @@ export function NetworkingGraph({
 
          {/* Orbit 2 - Outer */}
          <motion.div
-           className="absolute w-[520px] h-[520px] md:w-[720px] md:h-[720px] rounded-full border border-white/[0.03]"
+           className="absolute w-[360px] h-[360px] md:w-[720px] md:h-[720px] rounded-full border border-white/5"
            animate={{ rotate: -360 }}
            transition={TRANSITIONS.orbit(90)}
         >
             {orbit2.map((attendee, i) => {
                  const angle = (i / orbit2.length) * 360;
                  const radian = (angle * Math.PI) / 180;
-                 const x = Math.cos(radian) * 260; // radius
-                 const y = Math.sin(radian) * 260;
+                 const x = Math.cos(radian) * orbit2Radius; // radius
+                 const y = Math.sin(radian) * orbit2Radius;
                  
                  return (
                    <div key={i} className="absolute top-1/2 left-1/2 w-0 h-0">
@@ -261,7 +340,7 @@ export function NetworkingGraph({
              })}
         </motion.div>
 
-      </div>
+      </motion.div>
 
       {/* Center Node */}
       <div className="relative z-10 flex flex-col items-center justify-center text-center pointer-events-none">

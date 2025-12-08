@@ -47,6 +47,8 @@ export function EventLandingPage({ config }: EventLandingPageProps) {
   // State for selected attendee
   const [selectedAttendee, setSelectedAttendee] = React.useState<NetworkingAttendee | null>(null);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(true); // Default to loading while syncing
+
 
   // Map generated content to component-compatible formats
   const speakers = config.content.speakers.map(speaker => ({
@@ -140,14 +142,16 @@ export function EventLandingPage({ config }: EventLandingPageProps) {
   React.useEffect(() => {
     const syncRhiz = async () => {
       try {
+        setIsLoading(true);
         // 1. Ensure current user has an identity
         const currentUser = await rhizClient.ensureIdentity({
-          name: "Event Organizer", // In a real app, this would come from auth
+          name: "Event Organizer", 
         });
         setCurrentUserId(currentUser.id);
 
         if (!config.eventId) {
           console.warn("Rhiz: No event ID provided in config, skipping Protocol sync");
+          setIsLoading(false);
           return;
         }
 
@@ -173,6 +177,8 @@ export function EventLandingPage({ config }: EventLandingPageProps) {
 
       } catch (err) {
         console.error("Rhiz: Sync failed", err);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -234,6 +240,7 @@ export function EventLandingPage({ config }: EventLandingPageProps) {
                   relationships={relationships}
                   opportunities={opportunities}
                   onNodeClick={handleNodeClick}
+                  isLoading={isLoading}
                 />
              </div>
           </div>

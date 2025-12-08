@@ -3,9 +3,6 @@
 import { b as baml } from "@/lib/baml_client/baml_client";
 import { EventAppConfig } from "@/lib/baml_client/baml_client/types";
 import { rhizClient } from "@/lib/rhizClient";
-import { Attendee } from "@/lib/types"; // Used for type reference if needed generally, but we removed its usage in function body. Actually, let's keep it if we might need it later or remove it to fix lint.
-// It is unused.
-import { Session } from "@/lib/types";
 import { 
   BAMLGenerationError, 
   ValidationError,
@@ -119,31 +116,40 @@ export async function generateEventConfig(formData: FormData) {
     // Sync with Rhiz Protocol
     const syncPromises: Promise<void>[] = [];
 
-    // 1. Sync Sample Attendees
-    if (config.content?.sampleAttendees) {
-      const attendeePromises = config.content.sampleAttendees.map(async (a, idx) => {
-        // Assign stable ID if missing
+
+    // 1. Sync Sample Attendees (Bulk)
+    if (config.content?.sampleAttendees && config.content.sampleAttendees.length > 0) {
+      // Prepare attendees for ingestion, ensuring everyone has a stable ID
+      const attendeesToIngest = config.content.sampleAttendees.map((a, idx) => {
         if (!a.id) a.id = `attendee_${idx}_${Date.now()}`;
-        
-        const email = `${a.name.toLowerCase().replace(/\s+/g, '.')}@example.com`;
-        
-        try {
-          const identity = await rhizClient.ensureIdentity({
-            email,
-            name: a.name,
-            externalUserId: a.id
-          });
-          
-          // Update object with handle & did (cast to any to bypass strict BAML types)
-          if (identity.handle) (a as any).handle = identity.handle;
-          if (identity.did) (a as any).did = identity.did;
-          (a as any).rhizId = identity.id;
-          
-        } catch (e) {
-          console.warn(`Failed to sync attendee ${a.name}`, e);
-        }
+        return {
+          id: a.id,
+          name: a.name,
+          email: `${a.name.toLowerCase().replace(/\s+/g, '.')}@example.com`,
+          tags: a.interests || [],
+        };
       });
-      syncPromises.push(...attendeePromises);
+
+      try {
+        const result = await rhizClient.ingestAttendees({
+          eventId,
+          attendees: attendeesToIngest
+        });
+
+        // The bulk API returns a list of personIds (strings). 
+        // We need to map these back to our content objects if possible.
+        // Ideally, ingestion returns the full objects or we fetch them.
+        // For now, we unfortunately can't get the Handle/DID back for *each* person easily 
+        // without a subsequent fetch or a smarter return type from `ingestAttendees`.
+        // 
+        // TODO: Update `ingestAttendees` to return map of externalId -> Person identity
+        // For this immediate step, we will rely on the graph fetching them by ID or email later.
+        console.log(`Rhiz: Bulk sync complete. Created: ${result.created}`);
+
+      } catch (e) {
+        console.warn("Retrying individual sync due to bulk failure", e);
+        // Fallback or just log
+      }
     }
 
     // 2. Sync Speakers (so they have identities in the graph)

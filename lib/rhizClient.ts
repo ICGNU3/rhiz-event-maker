@@ -1,6 +1,6 @@
 import { RhizClient, InteractionCreate, PeopleClient, PersonCreate, NlpClient } from "./protocol-sdk";
-import { RelationshipDetail, IntroductionSuggestion, OpportunityMatch } from "./protocol-sdk/types";
-import { Attendee, Session } from "./types";
+import { RelationshipDetail, OpportunityMatch } from "./protocol-sdk/types";
+import { Session } from "./types";
 
 // Initialize the Rhiz Protocol Client
 const baseUrl = process.env.NEXT_PUBLIC_RHIZ_API_URL || "http://localhost:8000";
@@ -175,7 +175,7 @@ export const rhizClient = {
    */
   ingestAttendees: async (args: {
     eventId: string;
-    attendees: Attendee[];
+    attendees: { name: string; email?: string; tags?: string[] }[];
   }): Promise<{ created: number; failed: number; personIds: string[] }> => {
     try {
       console.log(`Rhiz: Ingesting ${args.attendees.length} attendees`);

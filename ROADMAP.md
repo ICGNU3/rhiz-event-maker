@@ -23,6 +23,8 @@ The SDK wrappers (`lib/rhizClient.ts`) are implemented. We now need to wire them
 - [x] **Interactive Nodes**: Click avatar to see bio/details (Modal or Popover).
 - [x] **Mobile Responsiveness**: Tune orbit radii for mobile screens.
 - [x] **Accessibility**: Keyboard navigation for graph nodes.
+- [x] **Session Intelligence**: Map schedule to Protocol "Context Tags" to recommend sessions.
+- [ ] **Stress Testing**: Add a debug toggle to flood the graph with 50+ mock attendees.
 
 ## 3. Production Polish
 

@@ -135,7 +135,7 @@ export function EventLandingPage({ config }: EventLandingPageProps) {
         pushToast({ title: 'Saved to send later', description: 'We will retry when connected.', variant: 'info' });
       }
     },
-    [config.eventId, currentUserId, pushToast]
+    [config.eventId, currentUserId, persistQueue, pushToast]
   );
 
   const flushQueuedInteractions = React.useCallback(async () => {

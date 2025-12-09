@@ -2,7 +2,6 @@
 
 import crypto from "node:crypto";
 import { b as baml } from "@/lib/baml_client/baml_client";
-import { b as baml } from "@/lib/baml_client/baml_client";
 import { EventAppConfig } from "@/lib/types";
 import { rhizClient } from "@/lib/rhizClient";
 import { 
@@ -15,6 +14,8 @@ import {
   withTimeout,
   logError
 } from "@/lib/errorHandling";
+import { db } from "@/lib/db";
+import { events } from "@/lib/db/schema";
 
 // Deterministic hash to keep event + identity IDs stable across retries
 const stableHash = (input: string) =>
@@ -81,7 +82,13 @@ export async function generateEventConfig(formData: FormData) {
   try {
     // Mock BAML response for 'Convergence Intelligence Summit' Demo
     const config: EventAppConfig = {
-      primaryGoals: ["Network Coordination", "Systemic Trust", "Intelligence Layering"],
+      id: "mock_config_1",
+      eventId: "evt1",
+      version: 1,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      attendeeProfileFields: [],
+      primaryGoals: ["community_building", "networking", "education"],
       matchmakingConfig: {
         enabled: true,
         inputSignals: ["trust_clusters", "timing_indicators", "contribution_profiles", "shared_mission"],
@@ -209,7 +216,7 @@ export async function generateEventConfig(formData: FormData) {
           { id: "a3", eventId: "evt1", userId: "u_a3", rhizIdentityId: "id_a3", email: "sarah@example.com", name: "Sarah L.", imageUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=faces", interests: ["AI Policy", "Ethics"], tags: ["Policy"], intents: ["Learning"] },
           { id: "a4", eventId: "evt1", userId: "u_a4", rhizIdentityId: "id_a4", email: "david@example.com", name: "David K.", imageUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop&crop=faces", interests: ["Urban Planning", "Systems"], tags: ["Urbanist"], intents: ["Networking"] },
           { id: "a5", eventId: "evt1", userId: "u_a5", rhizIdentityId: "id_a5", email: "priya@example.com", name: "Priya M.", imageUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop&crop=faces", interests: ["Digital Identity", "Privacy"], tags: ["Privacy"], intents: ["Hiring"] }
-        ]
+        ] as any
       }
     };
     
@@ -223,25 +230,67 @@ export async function generateEventConfig(formData: FormData) {
 
     console.log("Successfully generated event config. Event ID:", eventId);
 
+    // PERSISTENCE: Save to Database
+    try {
+      if (process.env.DATABASE_URL) {
+        await db.insert(events).values({
+           slug: eventId,
+           name: config.content?.eventName || "Untitled Event",
+           config: config as any, // Cast to avoid strict jsonb type issues
+           ownerId: "demo-user", // TODO: Replace with real auth
+           status: "draft",
+           updatedAt: new Date(),
+        });
+        console.log("DB: Saved event", eventId);
+      } else {
+        console.warn("DB: DATABASE_URL not set, skipping persistence");
+      }
+    } catch (dbError) {
+      console.error("DB: Failed to save event", dbError);
+      // Don't fail the request, just log
+    }
+
     // Sync with Rhiz Protocol
     // Sync with Rhiz Protocol
-    // const syncPromises: Promise<void>[] = [];
-    // ... commented out for testing ...
+    // Sync with Rhiz Protocol
+    const syncPromises: Promise<void>[] = [];
     
-    /*
     // 1. Sync Sample Attendees (Bulk)
     if (config.content?.sampleAttendees && config.content.sampleAttendees.length > 0) {
-      // ...
+      syncPromises.push(
+        rhizClient.ingestAttendees({
+          eventId,
+          attendees: config.content.sampleAttendees.map(a => ({
+            id: a.person_id, // Ensure mapping matches GraphAttendee/PersonRead structure or generic object
+            name: a.legal_name || a.preferred_name || "Unknown",
+            email: a.emails?.[0], 
+            tags: a.tags 
+          }))
+        }).then(result => {
+           console.log(`Rhiz: Synced ${result.created} attendees`);
+           // Merge back handles/dids to config if possible, but this is async.
+           // For now, we just rely on them being in the protocol for the graph to work later.
+        })
+      );
     }
 
     // 2. Sync Speakers (so they have identities in the graph)
     if (config.content?.speakers) {
-       // ...
+       const speakerAttendees = config.content.speakers.map(s => ({
+          name: s.name,
+          tags: ["Speaker", s.role]
+       }));
+       syncPromises.push(
+         rhizClient.ingestAttendees({ eventId, attendees: speakerAttendees })
+           .then(() => console.log("Rhiz: Speakers synced"))
+       );
     }
 
     // 3. Sync Sessions (Context Tags)
     if (config.content?.schedule) {
-       // ...
+       syncPromises.push(
+         rhizClient.ingestSessions({ eventId, sessions: config.content.schedule })
+       );
     }
 
     // Wait for all sync operations to complete
@@ -250,7 +299,6 @@ export async function generateEventConfig(formData: FormData) {
       await Promise.all(syncPromises);
       console.log("Rhiz: Sync complete");
     }
-    */
     
     // enhance config with metadata
     // We cast to any to avoid strict BAML type checks preventing the extra property

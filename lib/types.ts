@@ -115,6 +115,7 @@ export type EventAppConfig = {
     toneKeywords: string[];
   };
   designNotes?: string;
+  backgroundImage?: string;
   
   // New "Ingest" Fields
   ticketing?: {

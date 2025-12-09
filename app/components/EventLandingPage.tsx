@@ -220,7 +220,11 @@ export function EventLandingPage({ config }: EventLandingPageProps) {
     syncRhiz();
   }, [syncRhiz]);
 
-  type SpeakerWithIdentity = (typeof config.content.speakers)[number] & {
+  if (!config.content) {
+    return <div className="min-h-screen flex items-center justify-center text-white">Event content unavailable</div>;
+  }
+
+  type SpeakerWithIdentity = NonNullable<EventAppConfig['content']>['speakers'][number] & {
     id?: string;
     handle?: string;
     did?: string;
@@ -234,30 +238,43 @@ export function EventLandingPage({ config }: EventLandingPageProps) {
       name: speaker.name,
       role: speaker.role,
       company: speaker.company,
-      imageUrl: speaker.imageUrl,
+      imageUrl: speaker.imageUrl || '',
       bio: speaker.bio,
       handle: enriched.handle,
       did: enriched.did,
     } satisfies Speaker;
   });
 
-  // Extended type for internal use to include description which might be in the mock/demo data
-  type SessionWithDescription = (typeof config.content.schedule)[number] & { description?: string };
-
   const sessions = config.content.schedule.map((session) => {
-    const s = session as SessionWithDescription;
+    // Cast to any to handle both strict Session type and demo data shape
+    const s = session as any;
+    
+    let timeStr = s.time;
+    if (!timeStr && s.startTime) {
+       try {
+         timeStr = new Date(s.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+       } catch (e) {
+         timeStr = "TBD";
+       }
+    }
+
+    let speakerName = s.speakerName;
+    if (!speakerName && s.speakers && Array.isArray(s.speakers) && s.speakers.length > 0) {
+        speakerName = s.speakers[0];
+    }
+
     return {
       id: s.id,
-      time: s.time,
+      time: timeStr || "TBD",
       title: s.title,
       description: s.description,
       speaker: {
-        name: s.speakerName,
-        avatar: speakers.find((sp) => sp.name === s.speakerName)?.imageUrl || '',
-        role: s.speakerRole,
+        name: speakerName || "TBD",
+        avatar: speakers.find((sp) => sp.name === speakerName)?.imageUrl || '',
+        role: s.speakerRole || "Speaker",
       },
-      track: s.track as 'Main Stage' | 'Workshop' | 'Networking',
-      isWide: s.isWide,
+      track: (s.track as 'Main Stage' | 'Workshop' | 'Networking') || 'Main Stage',
+      isWide: !!s.isWide,
     };
   });
 
@@ -332,6 +349,7 @@ export function EventLandingPage({ config }: EventLandingPageProps) {
         subtitle={config.content.tagline}
         date={config.content.date}
         location={config.content.location}
+        backgroundImage={config.backgroundImage}
         primaryAction={{
           label: userProfile ? `Welcome, ${userProfile.name}` : 'Get Tickets',
           onClick: () => (userProfile ? pushToast({ title: 'You are registered', variant: 'info' }) : setIsRegistrationOpen(true)),

@@ -1,10 +1,10 @@
 "use client";
 
 import { EventLandingPage } from "../components/EventLandingPage";
-import { EventAppConfig } from "@/lib/baml_client/baml_client/types";
+import { EventAppConfig } from "@/lib/types";
 
 // Enhanced config for the "Convergence Intelligence Summit" Demo
-const demoConfig: any = { // using 'any' to bypass strict Type checks for 'description' field
+const demoConfig = { // Typed dynamically due to demo data structure mismatch, cast at end
   eventId: "demo-convergence-summit",
   primaryGoals: ["Network Coordination", "Systemic Trust", "Intelligence Layering"],
   matchmakingConfig: {
@@ -194,7 +194,7 @@ const demoConfig: any = { // using 'any' to bypass strict Type checks for 'descr
       { id: "a5", name: "Priya M.", imageUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop&crop=faces", interests: ["Digital Identity", "Privacy"] }
     ]
   }
-};
+} as unknown as EventAppConfig;
 
 export default function DemoPage() {
   return <EventLandingPage config={demoConfig} />;

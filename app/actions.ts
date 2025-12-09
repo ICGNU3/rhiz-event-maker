@@ -232,7 +232,7 @@ export async function generateEventConfig(formData: FormData) {
 
     // PERSISTENCE: Save to Database
     try {
-      if (process.env.DATABASE_URL) {
+      if (process.env.DATABASE_URL || process.env.POSTGRES_URL) {
         await db.insert(events).values({
            slug: eventId,
            name: config.content?.eventName || "Untitled Event",

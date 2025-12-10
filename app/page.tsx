@@ -6,10 +6,11 @@ import { AiCapabilities } from "./components/AiCapabilities";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-surface-950 text-foreground font-sans selection:bg-brand-500/30 overflow-x-hidden relative">
-      <div className="absolute inset-0 z-0 pointer-events-none">
-          <div className="absolute top-[-20%] right-[-10%] w-[60%] h-[60%] bg-brand-500/10 rounded-full blur-[120px] animate-pulse" style={{ animationDuration: '8s' }} />
-          <div className="absolute bottom-[-20%] left-[-10%] w-[50%] h-[50%] bg-purple-500/10 rounded-full blur-[100px] animate-pulse" style={{ animationDuration: '10s' }} />
+    <div className="min-h-screen bg-surface-950 bg-noise text-foreground font-sans selection:bg-brand-500/30 overflow-x-hidden relative">
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+          <div className="absolute top-[-20%] right-[-10%] w-[70%] h-[70%] bg-brand-500/10 rounded-full blur-[120px] animate-float" />
+          <div className="absolute bottom-[-20%] left-[-10%] w-[60%] h-[60%] bg-purple-500/10 rounded-full blur-[100px] animate-float" style={{ animationDelay: '-3s' }} />
+          <div className="absolute top-[40%] left-[20%] w-[40%] h-[40%] bg-blue-500/5 rounded-full blur-[80px] animate-pulse-slow" />
       </div>
 
       <main className="relative z-10 max-w-7xl mx-auto px-6 pt-20 lg:pt-32 pb-24 min-h-screen flex flex-col justify-center">
@@ -37,7 +38,7 @@ export default function Home() {
 
               <Link 
                 href="/create"
-                className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-white hover:bg-brand-50 text-black font-heading font-bold text-xl rounded-full transition-all hover:scale-105 hover:shadow-2xl hover:shadow-brand-500/20 group"
+                className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-white hover:bg-brand-50 text-black font-heading font-bold text-xl rounded-full transition-all duration-300 hover:scale-[1.02] shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-glow-md group"
               >
                 Start Building
                 <span className="group-hover:translate-x-1 transition-transform">→</span>

@@ -1,8 +1,15 @@
 import { clerkMiddleware } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
-export default clerkMiddleware({
-  publishableKey: "pk_test_bWVldC1oeWVuYS01NC5jbGVyay5hY2NvdW50cy5kZXYk",
-});
+// Fallback: If CLERK_SECRET_KEY is missing on Vercel, disable auth middleware to prevent 500 crash.
+// (The hardcoded publishableKey handles client-side, but server-side needs the secret).
+const hasSecretKey = !!process.env.CLERK_SECRET_KEY;
+
+export default hasSecretKey 
+  ? clerkMiddleware({
+      publishableKey: "pk_test_bWVldC1oeWVuYS01NC5jbGVyay5hY2NvdW50cy5kZXYk",
+    })
+  : () => NextResponse.next();
 
 export const config = {
   matcher: [

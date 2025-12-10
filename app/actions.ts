@@ -28,6 +28,10 @@ export async function generateEventConfig(formData: FormData): Promise<{ success
   const audience = (formData.get("audience") as string) || "General Audience";
   const relationshipIntent = (formData.get("relationshipIntent") as string) || "medium";
   const tone = (formData.get("tone") as string) || "professional";
+  
+  // Extract and validate Event Type
+  const rawType = formData.get("type") as string;
+  const eventType = (rawType === "lite" || rawType === "architect") ? rawType : "architect";
 
   try {
     // Validate required fields
@@ -48,6 +52,7 @@ export async function generateEventConfig(formData: FormData): Promise<{ success
     }
 
     console.log("Generating config with inputs:", { 
+      type: eventType,
       eventBasics: eventBasics.substring(0, 50) + "...", 
       eventDate, 
       eventLocation, 
@@ -273,6 +278,7 @@ export async function generateEventConfig(formData: FormData): Promise<{ success
             slug: eventId,
             name: config.content?.eventName || "Untitled Event",
             config: config as unknown,
+            type: eventType, // Save the selected mode
             ownerId: "demo-user",
             status: "draft",
             updatedAt: new Date(),

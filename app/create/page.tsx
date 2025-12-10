@@ -94,6 +94,51 @@ export default function CreateEventPage() {
               handleSubmit(md);
             }} className="space-y-10">
               
+              {/* Mode Selection */}
+              <div className="space-y-4 group">
+                <label className="text-xs font-mono text-brand-300 uppercase tracking-widest group-focus-within:text-brand-400 transition-colors">
+                  00 // Select Mode
+                </label>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <label className="relative flex cursor-pointer rounded-xl border border-surface-800 bg-surface-900/50 p-4 hover:bg-surface-800 transition-all has-[:checked]:border-brand-500 has-[:checked]:ring-1 has-[:checked]:ring-brand-500/50">
+                    <input
+                      type="radio"
+                      name="type"
+                      value="lite"
+                      className="peer sr-only"
+                    />
+                    <div className="flex flex-col gap-2">
+                       <div className="flex items-center justify-between">
+                         <span className="font-heading font-semibold text-white">Lite Mode</span>
+                         <span className="h-2 w-2 rounded-full bg-surface-600 peer-checked:bg-brand-500 transition-colors" />
+                       </div>
+                       <p className="text-sm text-surface-400 font-light">
+                         Quick, essential event setup. Best for meetups and simple gatherings.
+                       </p>
+                    </div>
+                  </label>
+
+                  <label className="relative flex cursor-pointer rounded-xl border border-surface-800 bg-surface-900/50 p-4 hover:bg-surface-800 transition-all has-[:checked]:border-brand-500 has-[:checked]:ring-1 has-[:checked]:ring-brand-500/50">
+                    <input
+                      type="radio"
+                      name="type"
+                      value="architect"
+                      defaultChecked
+                      className="peer sr-only"
+                    />
+                    <div className="flex flex-col gap-2">
+                       <div className="flex items-center justify-between">
+                         <span className="font-heading font-semibold text-white">Architect Mode</span>
+                         <span className="h-2 w-2 rounded-full bg-brand-500 peer-checked:bg-brand-500 transition-colors shadow-[0_0_10px_rgba(56,189,248,0.5)]" />
+                       </div>
+                       <p className="text-sm text-surface-400 font-light">
+                         Full AI-powered experience design with deep customization.
+                       </p>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
               {/* Event Essence */}
               <div className="space-y-4 group">
                 <label className="text-xs font-mono text-brand-300 uppercase tracking-widest group-focus-within:text-brand-400 transition-colors">

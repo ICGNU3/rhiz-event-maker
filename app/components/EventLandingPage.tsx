@@ -15,6 +15,8 @@ import { Speaker } from './speakers/SpeakerCard';
 import { useToast } from '@/components/ui/ToastProvider';
 import { RegistrationModal } from '@/components/registration/RegistrationModal';
 import { EventFooter } from '@/components/footer/EventFooter';
+import { EventActions } from '@/components/EventActions';
+import { MapPreviewCard } from '@/components/MapPreviewCard';
 
 interface EventLandingPageProps {
   config: EventAppConfig & { eventId?: string };
@@ -389,12 +391,21 @@ export function EventLandingPage({ config }: EventLandingPageProps) {
         theme={theme}
       />
 
+      <div className="container mx-auto px-6 -mt-8 relative z-20 mb-12">
+        <EventActions 
+          eventName={config.content.eventName}
+          eventDate={config.content.date}
+          eventLocation={config.content.location}
+          eventDescription={config.content.tagline}
+          className="bg-surface-900/80 backdrop-blur-md p-4 rounded-2xl shadow-xl border border-white/10 max-w-3xl mx-auto"
+        />
+      </div>
+
       <SpeakerSpotlight
         speakers={speakers}
         layout="carousel"
         onSpeakerClick={handleSpeakerClick}
       />
-
       <section className="py-20 bg-neutral-900 border-y border-neutral-800">
         <div className="container mx-auto px-6 mb-12 text-center">
           <h2 className="text-3xl md:text-5xl font-serif text-white mb-4">Event Schedule</h2>
@@ -403,6 +414,28 @@ export function EventLandingPage({ config }: EventLandingPageProps) {
           </p>
         </div>
         <ScheduleGrid sessions={sessions} />
+      </section>
+
+      {/* Location Section */}
+      <section className="py-20 bg-surface-950 border-b border-surface-900">
+          <div className="container mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
+              <div>
+                  <h2 className="text-3xl md:text-5xl font-heading font-bold text-white mb-6">The Venue</h2>
+                  <p className="text-lg text-surface-400 mb-8 leading-relaxed">
+                      We've selected a space that fosters creativity and connection. 
+                      Located in the heart of {config.content.location}, accessible by all major transit.
+                  </p>
+                  <EventActions 
+                    eventName={config.content.eventName}
+                    eventDate={config.content.date}
+                    eventLocation={config.content.location}
+                    eventDescription={config.content.tagline}
+                  />
+              </div>
+              <div className="h-[400px]">
+                  <MapPreviewCard location={config.content.location} />
+              </div>
+          </div>
       </section>
 
       <section className="py-20 bg-black text-white overflow-hidden">

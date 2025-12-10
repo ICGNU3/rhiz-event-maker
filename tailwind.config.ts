@@ -47,6 +47,9 @@ const config: Config = {
       animation: {
         "fade-in": "fadeIn 0.5s ease-out forwards",
         "slide-up": "slideUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+        "shimmer": "shimmer 2s linear infinite",
+        "float": "float 6s ease-in-out infinite",
+        "pulse-slow": "pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite",
       },
       keyframes: {
         fadeIn: {
@@ -57,6 +60,20 @@ const config: Config = {
           "0%": { opacity: "0", transform: "translateY(20px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
+        shimmer: {
+          "0%": { backgroundPosition: "200% 0" },
+          "100%": { backgroundPosition: "-200% 0" },
+        },
+        float: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-10px)" },
+        },
+      },
+      boxShadow: {
+        'glow-sm': '0 0 10px rgba(6, 182, 212, 0.3)',
+        'glow-md': '0 0 20px rgba(6, 182, 212, 0.5)',
+        'glow-lg': '0 0 30px rgba(6, 182, 212, 0.6)',
+        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
       },
     },
   },

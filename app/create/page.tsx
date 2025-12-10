@@ -88,7 +88,11 @@ export default function CreateEventPage() {
               </span>
             </div>
 
-            <form action={handleSubmit} className="space-y-10">
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              const md = new FormData(e.currentTarget);
+              handleSubmit(md);
+            }} className="space-y-10">
               
               {/* Event Essence */}
               <div className="space-y-4 group">

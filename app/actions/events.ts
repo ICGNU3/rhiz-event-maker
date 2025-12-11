@@ -300,15 +300,74 @@ export async function generateEventConfig(
   }
 }
 
+import { eq } from "drizzle-orm";
+
+/**
+ * Fetch event by slug
+ */
+export async function getEvent(slug: string) {
+  try {
+    const result = await db.select().from(events).where(eq(events.slug, slug)).limit(1);
+    
+    if (!result || result.length === 0) {
+      return null;
+    }
+    
+    // Cast config to correct type
+    return {
+      ...result[0],
+      config: result[0].config as EventAppConfig
+    };
+  } catch (error) {
+    console.error("Failed to fetch event:", error);
+    return null;
+  }
+}
+
 /**
  * Update existing event configuration (for live edit mode)
  */
 export async function updateEventConfig(
-  eventId: string,
+  eventId: string, // This is the slug in our DB schema
   updates: Partial<EventAppConfig>
 ) {
-  // TODO: Implement when adding data persistence
-  console.log("Update event config:", eventId, updates);
+  try {
+    // 1. Fetch current config
+    const current = await getEvent(eventId);
+    if (!current) {
+        throw new Error("Event not found");
+    }
+
+    // 2. Merge updates deeply (simple shallow merge for top-level, deeper for content)
+    // For MVP, we assume updates are mostly in 'content' or 'branding'
+    const newConfig = {
+        ...current.config,
+        ...updates,
+        content: {
+            ...current.config.content,
+            ...updates.content,
+        },
+        branding: {
+            ...current.config.branding,
+            ...updates.branding,
+        },
+        updatedAt: new Date()
+    };
+
+    // 3. Update DB
+    await db.update(events)
+        .set({ 
+            config: newConfig as unknown as object, // cast for jsonb 
+            updatedAt: new Date(),
+            name: newConfig.content?.eventName || current.name
+        })
+        .where(eq(events.slug, eventId));
+
+    return { success: true, data: newConfig };
+  } catch (error) {
+      console.error("Update failed:", error);
+      return { success: false, error: String(error) };
+  }
 }
 
 /**

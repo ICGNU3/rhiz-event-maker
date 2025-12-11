@@ -1,15 +1,15 @@
-'use client';
-
+import { useUser } from "@clerk/nextjs";
+import { useAuth } from "@clerk/nextjs";
 import React from 'react';
 import { EventAppConfig } from '@/lib/types';
-import { RelationshipDetail, OpportunityMatch, PersonRead } from '@/lib/protocol-sdk/types';
+import { RelationshipDetail, OpportunityMatch } from '@/lib/protocol-sdk/types';
 import { HeroSection } from '@/components/hero/HeroSection';
 import { SpeakerSpotlight } from './speakers/SpeakerSpotlight';
 import { NetworkingGraph } from '@/components/networking/NetworkingGraph';
 import { ScheduleGrid } from '@/components/schedule/ScheduleGrid';
 import type { HeroTheme } from '@/components/hero/theme';
 import { rhizClient } from '@/lib/rhizClient';
-import type { GraphAttendee as NetworkingAttendee } from '@/lib/types';
+import type { GraphAttendee } from '@/lib/types';
 import { AttendeeDetailModal } from '@/components/networking/AttendeeDetailModal';
 import { Speaker } from './speakers/SpeakerCard';
 import { useToast } from '@/components/ui/ToastProvider';
@@ -25,20 +25,9 @@ interface EventLandingPageProps {
   config: EventAppConfig & { eventId?: string };
 }
 
-interface ContentAttendee {
-  id?: string;
-  name: string;
-  imageUrl?: string;
-  interests?: string[];
-  handle?: string;
-  did?: string;
-}
 
-type InteractionJob = {
-  toIdentityId: string;
-  type: string;
-  metadata?: Record<string, unknown>;
-};
+// Removed unused interfaces ContentAttendee and InteractionJob
+
 
 const determineTheme = (toneKeywords: string[]): HeroTheme => {
   if (toneKeywords.includes('luxury')) return 'luxury';
@@ -54,24 +43,134 @@ export function EventLandingPage({ config: initialConfig }: EventLandingPageProp
   const [isEditing, setIsEditing] = React.useState(false);
   const [isSaving, setIsSaving] = React.useState(false);
 
-  // ... existing hooks (Mocked/Stubbed for build)
-  const userProfile = null as { name: string } | null;
-  const speakers: any[] = [];
-  const sessions: any[] = []; 
-  const attendees: any[] = [];
-  const relationships: any[] = [];
-  const opportunities: any[] = [];
-  const pendingCount = 0;
-  const isLoading = false;
-  const graphError = null;
-  const syncRhiz = () => {};
-  const handleNodeClick = () => {};
+  // ... existing hooks
+  const { user } = useUser();
+  const { userId } = useAuth();
+  
+  const userProfile = user ? { 
+      name: user.fullName || user.firstName || "Guest",
+      id: user.id
+  } : null;
+
+  // Map speakers to ensure required fields
+  const speakers = (config.content?.speakers || []).map(s => ({
+      ...s,
+      imageUrl: s.imageUrl || "",
+      // Ensure other fields match SpeakerCard requirements if needed
+  }));
+  // Map lib/types Session to SessionCard Session
+  const sessions = (config.content?.schedule || []).map(s => {
+      // Find primary speaker
+      const speakerName = s.speakers?.[0] || "TBD";
+      const speakerDetails = speakers.find(sp => sp.name === speakerName);
+      
+      return {
+          id: s.id,
+          title: s.title,
+          time: `${new Date(s.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`,
+          track: s.track as any, // Cast to match strict union if needed
+          description: s.description,
+          speaker: {
+              name: speakerName,
+              avatar: speakerDetails?.imageUrl || "",
+              role: speakerDetails?.company || "Speaker"
+          },
+          isWide: false
+      };
+  }); 
+  const [attendees] = React.useState<GraphAttendee[]>(config.content?.sampleAttendees || []);
+  const [relationships, setRelationships] = React.useState<RelationshipDetail[]>([]);
+  const [opportunities, setOpportunities] = React.useState<OpportunityMatch[]>([]);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [graphError, setGraphError] = React.useState<string | null>(null);
+  const [pendingCount] = React.useState(0); // Stubbed for now
+
+  const syncRhiz = React.useCallback(async () => {
+      if (!userId || !config.eventId || !config.matchmakingConfig.enabled) return;
+      
+      setIsLoading(true);
+      try {
+          // In a real app, we'd fetch the full graph here. 
+          // For now, we use sample attendees + any personalized suggestions.
+          const [rels, opps] = (typeof rhizClient.getSuggestedConnections === 'function' && typeof rhizClient.getOpportunityMatches === 'function') ? await Promise.all([
+             rhizClient.getSuggestedConnections({ 
+                  eventId: config.eventId, 
+                  identityId: userId 
+              }),
+              rhizClient.getOpportunityMatches({ 
+                  eventId: config.eventId, 
+                  identityId: userId 
+              })
+          ]) : [[], []]; // Handle if method missing
+          
+          if(Array.isArray(rels)) setRelationships(rels as RelationshipDetail[]);
+          if(Array.isArray(opps)) setOpportunities(opps as OpportunityMatch[]);
+          setGraphError(null);
+      } catch (err) {
+          console.error("Rhiz Sync Error:", err);
+          setGraphError("Failed to sync network data.");
+      } finally {
+          setIsLoading(false);
+      }
+  }, [userId, config.eventId, config.matchmakingConfig.enabled]);
+
+  React.useEffect(() => {
+      syncRhiz();
+  }, [syncRhiz]);
+
   const [isModalOpen, setIsModalOpen] = React.useState(false);
-  const selectedAttendee = null;
-  const handleConnect = async (attendee: any) => { console.log("Connect", attendee); };
+  const [selectedAttendee, setSelectedAttendee] = React.useState<GraphAttendee | null>(null);
+
+  const handleNodeClick = (node: GraphAttendee) => {
+      setSelectedAttendee(node);
+      setIsModalOpen(true);
+  };
+
+  const handleConnect = async (attendee: GraphAttendee) => { 
+      if (!userId || !config.eventId) return;
+      
+      try {
+          await rhizClient.recordInteraction({
+              eventId: config.eventId,
+              fromIdentityId: userId,
+              toIdentityId: attendee.person_id,
+              type: "connection_request"
+          });
+          pushToast({ title: "Connection request sent!", variant: "success" });
+          setIsModalOpen(false);
+      } catch (e) {
+          console.error(e);
+          pushToast({ title: "Failed to connect", variant: "error" });
+      }
+  };
+
   const [isRegistrationOpen, setIsRegistrationOpen] = React.useState(false);
-  const handleRegister = async (data: any) => { console.log("Register", data); };
-  const handleSpeakerClick = () => {};
+  
+  const handleRegister = async (data: { name: string; email: string }) => { 
+      if (!config.eventId) return;
+      
+      try {
+          // Register in Rhiz Protocol
+          await rhizClient.ensureIdentity({
+              name: data.name,
+              email: data.email,
+              externalUserId: userId || undefined
+          });
+          
+          pushToast({ title: "Registered successfully!", variant: "success" });
+          setIsRegistrationOpen(false);
+          // Trigger sync to update graph
+          syncRhiz();
+      } catch (e) {
+          console.error(e);
+          pushToast({ title: "Registration failed", variant: "error" });
+      }
+  };
+
+  const handleSpeakerClick = (speaker: Speaker) => {
+      // Optional: show speaker modal
+      console.log("Clicked speaker:", speaker);
+  };
 
   const handleUpdateContent = (field: string, value: string) => {
       setConfig(prev => ({
@@ -98,6 +197,7 @@ export function EventLandingPage({ config: initialConfig }: EventLandingPageProp
               pushToast({ title: "Save failed", description: result.error, variant: "error" });
           }
       } catch (e) {
+          console.error(e);
           pushToast({ title: "Save failed", variant: "error" });
       } finally {
           setIsSaving(false);
@@ -176,7 +276,7 @@ export function EventLandingPage({ config: initialConfig }: EventLandingPageProp
               <div>
                   <h2 className="text-3xl md:text-5xl font-heading font-bold text-white mb-6">The Venue</h2>
                   <p className="text-lg text-surface-400 mb-8 leading-relaxed">
-                      We've selected a space that fosters creativity and connection. 
+                      We&apos;ve selected a space that fosters creativity and connection. 
                       Located in the heart of {config.content?.location || 'our selected venue'}, accessible by all major transit.
                   </p>
                   <EventActions 
@@ -212,7 +312,7 @@ export function EventLandingPage({ config: initialConfig }: EventLandingPageProp
                 <span className="inline-flex items-center justify-center rounded-full bg-amber-500/20 text-amber-100 px-2 py-0.5 text-xs">
                   {pendingCount} queued
                 </span>
-                <span className="text-amber-200/80">We’ll sync when connected.</span>
+                <span className="text-amber-200/80">We&apos;ll sync when connected.</span>
               </div>
             )}
           </div>
@@ -225,7 +325,7 @@ export function EventLandingPage({ config: initialConfig }: EventLandingPageProp
               opportunities={opportunities}
               onNodeClick={handleNodeClick}
               isLoading={isLoading}
-              error={graphError}
+              error={graphError ? new Error(graphError) : null}
               onRetry={syncRhiz}
             />
           </div>

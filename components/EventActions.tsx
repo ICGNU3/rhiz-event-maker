@@ -12,7 +12,10 @@ interface EventActionsProps {
   className?: string;
 }
 
-export function EventActions({ eventName, eventDate, eventLocation, eventDescription, className = "" }: EventActionsProps) {
+export function EventActions({  eventName, 
+  // eventDate, 
+  eventLocation, 
+  eventDescription, className = "" }: EventActionsProps) {
   const [copied, setCopied] = useState(false);
 
   // Helper to construct Google Calendar Link

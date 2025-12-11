@@ -7,7 +7,11 @@ import { useState, useEffect, useMemo } from "react";
 import { EASING, TRANSITIONS } from "./motion-utils";
 import { AlertCircle, RefreshCw } from "lucide-react";
 import { RelationshipDetail, OpportunityMatch } from "@/lib/protocol-sdk/types";
+import { RelationshipDetail, OpportunityMatch } from "@/lib/protocol-sdk/types";
 import { GraphAttendee } from "@/lib/types";
+import { MatchmakingCard } from "../event/MatchmakingCard";
+import { Attendee } from "@/lib/types"; // Import Attendee specifically for type casting if needed
+
 
 export interface NetworkingGraphProps {
   featuredAttendees: GraphAttendee[];
@@ -449,7 +453,7 @@ export function NetworkingGraph({
 
           {/* Center Node */}
           {!error && (
-           <div className="relative z-10 flex flex-col items-center justify-center text-center pointer-events-none">
+           <div className="relative z-10 flex flex-col items-center justify-center text-center pointer-events-none w-full max-w-sm px-4">
               {matchmakingEnabled && (
                   <motion.div
                      initial={{ opacity: 0, y: 5 }}
@@ -457,23 +461,57 @@ export function NetworkingGraph({
                      transition={{ duration: 1, delay: 0.5 }}
                      className="mb-4 pointer-events-auto"
                   >
-                      <div className="relative px-3 py-1 bg-zinc-900 rounded-full border border-white/10 flex items-center gap-2 shadow-2xl">
-                         <motion.div
-                             className="w-1.5 h-1.5 rounded-full bg-blue-500"
-                             animate={{ opacity: [0.4, 1, 0.4], scale: [1, 1.2, 1] }}
-                             transition={{ duration: 3, repeat: Infinity }}
-                         />
-                         <span className="text-[10px] uppercase tracking-widest text-zinc-400 font-medium">AI Match</span>
-                      </div>
+                      {/* Show Matchmaking Card if we have an opportunity */}
+                      {opportunities.length > 0 && opportunities[0].candidate ? (
+                         <div className="text-left w-full">
+                            <MatchmakingCard 
+                               suggestion={{
+                                   targetAttendeeId: opportunities[0].candidate.person_id,
+                                   score: opportunities[0].opportunity_score || 0.95,
+                                   reasonSummary: opportunities[0].talking_points?.[0] || "High affinity match",
+                                   sharedTags: opportunities[0].common_interests || [],
+                                   sharedIntents: [],
+                                   talkingPoints: opportunities[0].talking_points || []
+                               }}
+                               targetAttendee={{
+                                   // Mapping GraphAttendee(PersonRead) to Attendee
+                                   id: opportunities[0].candidate.person_id,
+                                   eventId: "temp",
+                                   userId: opportunities[0].candidate.person_id,
+                                   rhizIdentityId: opportunities[0].candidate.person_id,
+                                   name: opportunities[0].candidate.preferred_name,
+                                   email: "hidden",
+                                   headline: opportunities[0].candidate.bio,
+                                   tags: opportunities[0].candidate.interests || [],
+                                   intents: []
+                               }}
+                               onConnect={() => onNodeClick?.(opportunities[0].candidate as unknown as GraphAttendee)}
+                            />
+                         </div>
+                      ) : (
+                        <div className="relative px-3 py-1 bg-zinc-900 rounded-full border border-white/10 flex items-center gap-2 shadow-2xl">
+                           <motion.div
+                               className="w-1.5 h-1.5 rounded-full bg-blue-500"
+                               animate={{ opacity: [0.4, 1, 0.4], scale: [1, 1.2, 1] }}
+                               transition={{ duration: 3, repeat: Infinity }}
+                           />
+                           <span className="text-[10px] uppercase tracking-widest text-zinc-400 font-medium">AI Match</span>
+                        </div>
+                      )}
                   </motion.div>
               )}
      
-              <h3 className="text-3xl md:text-5xl font-light tracking-tight text-white mb-2">
-                 Connect with <span className="font-medium text-transparent bg-clip-text bg-gradient-to-r from-zinc-200 to-zinc-500">{totalCount}+</span>
-              </h3>
-              <p className="text-zinc-500 text-sm md:text-base uppercase tracking-widest opacity-60">
-                  Attendees
-              </p>
+              {/* Only show "Connect with 500+" if NOT showing a card to avoid clutter */}
+              {(!matchmakingEnabled || opportunities.length === 0) && (
+                <>
+                  <h3 className="text-3xl md:text-5xl font-light tracking-tight text-white mb-2">
+                     Connect with <span className="font-medium text-transparent bg-clip-text bg-gradient-to-r from-zinc-200 to-zinc-500">{totalCount}+</span>
+                  </h3>
+                  <p className="text-zinc-500 text-sm md:text-base uppercase tracking-widest opacity-60">
+                      Attendees
+                  </p>
+                </>
+              )}
            </div>
           )}
         </motion.div>

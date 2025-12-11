@@ -50,6 +50,8 @@ export type TicketTier = {
   currency: string;
   features: string[];
   capacity?: number;
+  paymentUrl?: string; // External payment link (Stripe, Luma, etc.)
+  description?: string;
 };
 
 export type SponsorTier = {
@@ -132,8 +134,8 @@ export type EventAppConfig = {
   
   // New "Ingest" Fields
   ticketing?: {
-    skus: TicketTier[];
-    registrationOpen: boolean;
+    tiers: TicketTier[];
+    enabled: boolean;
   };
   venueConstraints?: {
     maxCapacity: number;
@@ -205,3 +207,13 @@ export type ConnectionSuggestion = {
   sharedIntents: string[];
   talkingPoints: string[];
 };
+
+export type NotificationChannel = "email" | "sms" | "push" | "in_app";
+
+export type NotificationContext = {
+  eventId: string;
+  recipientId: string;
+  messageType: "invite" | "update" | "reminder" | "match";
+  priority: "high" | "low" | "normal";
+};
+

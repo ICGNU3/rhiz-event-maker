@@ -10,11 +10,11 @@
 
 _Target: Free Tier / Viral Growth_
 
-- [ ] **The "3-Field" Creator**
+- [x] **The "3-Field" Creator**
   - Build a simplified `CreateEventModal` for GatherX that bypasses the complex Wizard.
   - Inputs: Title, Date/Time, Location.
   - Action: Generates a published URL (e.g. `gatherx.io/e/...`) immediately using a default "Glass" template.
-- [ ] **The "Luma Import" Tool**
+- [x] **The "Luma Import" Tool**
   - Input field: "Paste Luma/Eventbrite URL".
   - Backend: Scrape OG tags and schema.org data to pre-fill the "3-Field" creator.
 - [ ] **Viral "Clone" Loop**
@@ -42,7 +42,7 @@ _Target: Sticky Value_
 - [ ] **"Warm Start" Data Injection**
   - Build a job to query public social graphs (Farcaster/Lens) based on email/handle.
   - Goal: Ensure `getSuggestedConnections` returns >0 results for new users.
-- [ ] **The "Graph" Component Polish**
+- [x] **The "Graph" Component Polish**
   - Finalize `NetworkingGraph` visualization.
   - Must feel "alive" (physics-based, breathing animations).
 
@@ -54,7 +54,7 @@ _Target: Conversion & Network Effects_
   - Implement `create-gate` logic in `EventAppConfig`.
   - Feature: Auto-approve guests based on **Trust Score** (>50) or **Vouching** (Followed by Speaker).
   - UI: "Request to Join" button (replacing "Register") for gated events.
-- [ ] **"Guest List" Preview (The FOMO Hook)**
+- [x] **"Guest List" Preview (The FOMO Hook)**
   - Expose a readonly version of the `NetworkingGraph` on the **Registration Page**.
   - Logic: Show "Join 45 builders including [Avatar]..." _before_ sign-up.
   - Goal: Use social proof to drive conversion.

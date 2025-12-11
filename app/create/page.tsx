@@ -13,6 +13,8 @@ import { GenerationError } from "@/components/create/GenerationError";
 import { ImageUploader } from "@/components/create/ImageUploader";
 import { CreateActionBar } from "@/components/create/CreateActionBar";
 import { FlyerGenerator } from "@/components/create/FlyerGenerator";
+import { UrlImportModal } from "@/components/create/UrlImportModal";
+import { GenerationReveal } from "@/components/create/GenerationReveal";
 
 export default function CreateEventPage() {
   const router = useRouter();
@@ -28,6 +30,7 @@ export default function CreateEventPage() {
   // Modal States
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [isFlyerCreatorOpen, setIsFlyerCreatorOpen] = useState(false);
+  const [isImportOpen, setIsImportOpen] = useState(false);
 
   const handleExtraction = useCallback((data: ScrapedEventData) => {
     console.log("Scraped data:", data);
@@ -111,7 +114,15 @@ export default function CreateEventPage() {
                       <input type="hidden" name="type" value={mode} />
                       
                       {mode === 'lite' ? (
-                          <LiteModeFields isPending={isPending} />
+                          <LiteModeFields 
+                            isPending={isPending} 
+                            defaultValues={scrapedData ? {
+                                eventName: scrapedData.title,
+                                eventBasics: scrapedData.description 
+                                   ? scrapedData.description 
+                                   : (scrapedData.date && scrapedData.location ? `${scrapedData.date} at ${scrapedData.location}` : undefined)
+                            } : undefined}
+                          />
                       ) : (
                           <ArchitectModeFields 
                             isPending={isPending} 
@@ -142,6 +153,7 @@ export default function CreateEventPage() {
         isPending={isPending}
         onOpenScanner={() => setIsScannerOpen(true)}
         onOpenFlyerCreator={() => setIsFlyerCreatorOpen(true)}
+        onOpenImport={() => setIsImportOpen(true)}
       />
 
       {/* Scanner Modal */}
@@ -171,17 +183,26 @@ export default function CreateEventPage() {
         )}
       </AnimatePresence>
 
+      {/* Import Modal */}
+      <UrlImportModal 
+          isOpen={isImportOpen}
+          onClose={() => setIsImportOpen(false)}
+          onImportComplete={(data) => {
+              setScrapedData(data);
+              setIsImportOpen(false);
+              // Auto-switch to Lite mode if in Architect, or just stay? 
+              // User might want to be in Architect mode to see all details.
+              // Logic: If user specifically clicked Import, assume they want us to fill things out.
+          }}
+      />
+
       {/* Flyer Creator Modal */}
       <FlyerGenerator 
          isOpen={isFlyerCreatorOpen}
          onClose={() => setIsFlyerCreatorOpen(false)}
          onSelect={(imgUrl) => {
              console.log("Selected flyer:", imgUrl);
-             // Logic to use this image (e.g. set as background or extract from it)
-             // For now just close, or maybe extract details from it too?
-             // Let's analyze it!
              setIsFlyerCreatorOpen(false);
-             // Create a mock ScrapedData for demo
              handleExtraction({
                  title: "AI Generated Rave",
                  date: "2024-12-31",
@@ -191,6 +212,11 @@ export default function CreateEventPage() {
              });
          }}
       />
+      
+      {/* Cinematic Reveal */}
+      <AnimatePresence>
+         {isPending && <GenerationReveal />}
+      </AnimatePresence>
     </div>
   );
 }

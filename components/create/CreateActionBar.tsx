@@ -2,20 +2,22 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Sparkles, Loader2, Upload, FileImage } from "lucide-react";
+import { ArrowRight, Sparkles, Loader2, Upload, FileImage, Link as LinkIcon } from "lucide-react";
 
 interface CreateActionBarProps {
   onGenerate: () => void;
   isPending: boolean;
   onOpenScanner: () => void;
   onOpenFlyerCreator: () => void;
+  onOpenImport?: () => void;
 }
 
 export function CreateActionBar({ 
   onGenerate, 
   isPending, 
   onOpenScanner,
-  onOpenFlyerCreator
+  onOpenFlyerCreator,
+  onOpenImport
 }: CreateActionBarProps) {
   const [isVisible, setIsVisible] = useState(false);
 
@@ -46,6 +48,16 @@ export function CreateActionBar({
             >
               <Upload size={18} />
               <span className="hidden md:inline">Scan Flyer</span>
+            </button>
+            <button 
+              onClick={onOpenImport}
+              type="button"
+              className="p-2.5 rounded-xl hover:bg-white/5 text-surface-400 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium"
+              title="Import from URL"
+            >
+               {/* Link icon imported from lucide-react */}
+               <LinkIcon size={18} />
+               <span className="hidden md:inline">Import Link</span>
             </button>
             <div className="w-px h-8 bg-white/10 mx-1" />
             <button 

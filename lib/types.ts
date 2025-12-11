@@ -12,6 +12,8 @@ export type ScrapedEventData = {
   date?: string;
   location?: string;
   description?: string;
+  imageUrl?: string;
+  source?: string;
   hosts?: string[];
   goals?: string;
   audience?: string;

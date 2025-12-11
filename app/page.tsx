@@ -3,6 +3,7 @@ import { FloatingHeroComposition } from "@/components/hero/FloatingHeroCompositi
 
 
 import { AiCapabilities } from "./components/AiCapabilities";
+import { GraphPreviewSection } from "@/components/hero/GraphPreviewSection";
 
 export default function Home() {
   return (
@@ -61,6 +62,9 @@ export default function Home() {
          </div>
          <AiCapabilities />
       </section>
+
+      {/* Preview Graph Section */}
+      <GraphPreviewSection />
 
     </div>
   );

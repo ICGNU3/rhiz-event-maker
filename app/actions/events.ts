@@ -9,6 +9,7 @@ import // retryWithBackoff,
 "@/lib/errorHandling";
 import { db } from "@/lib/db";
 import { events } from "@/lib/db/schema";
+import { auth } from "@clerk/nextjs/server";
 
 // Deterministic hash to keep event + identity IDs stable across retries
 const stableHash = (input: string) =>
@@ -43,6 +44,12 @@ export async function generateEventConfig(
   const eventType =
     rawType === "lite" || rawType === "architect" ? rawType : "architect";
   const explicitEventName = (formData.get("eventName") as string) || "";
+
+  // Secure: Get authenticated user
+  const { userId } = await auth();
+  if (!userId) {
+    return { success: false, error: "Unauthorized: You must be logged in to create events." };
+  }
 
   try {
     // Validate required fields
@@ -208,7 +215,7 @@ export async function generateEventConfig(
           name: config.content?.eventName || "Untitled Event",
           config: config as unknown,
           type: eventType, // Save the selected mode
-          ownerId: "demo-user",
+          ownerId: userId,
           status: "draft",
           updatedAt: new Date(),
         });

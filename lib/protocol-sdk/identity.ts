@@ -1,5 +1,5 @@
 import { PeopleClient, PersonCreate } from "./people";
-import { PersonRead } from "./types";
+// import { PersonRead } from "./types";
 
 interface ResolveIdentityArgs {
   email?: string;

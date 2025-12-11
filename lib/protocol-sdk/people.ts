@@ -13,6 +13,8 @@ import {
   PeopleQueryParams,
 } from './types';
 
+export type { PersonCreate };
+
 export interface PeopleClientOptions {
   baseUrl: string;
   getAccessToken?: () => Promise<string | null>;

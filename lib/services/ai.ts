@@ -134,8 +134,8 @@ export async function generateEventConfigFromInputs(
 
   // Update IDs
   config.eventId = eventId;
-  if (config.content) {
-    config.content.schedule.forEach((s) => (s.eventId = eventId));
+    if (config.content && config.content.schedule) {
+     config.content.schedule.forEach((s) => (s.eventId = eventId));
   }
 
   return { config, eventId };

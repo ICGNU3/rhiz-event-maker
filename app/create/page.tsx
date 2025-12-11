@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useTransition, useCallback, useEffect } from "react";
+import { useState, useTransition, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { generateEventConfig } from "../actions/events";
-import { EventAppConfig, ScrapedEventData } from "@/lib/types";
+import { ScrapedEventData } from "@/lib/types";
 import { ModeSelector } from "@/components/create/ModeSelector";
 import { LiteModeFields } from "@/components/create/LiteModeFields";
 import { ArchitectModeFields } from "@/components/create/ArchitectModeFields";
@@ -18,7 +18,6 @@ export default function CreateEventPage() {
   const [retryCount, setRetryCount] = useState(0);
   const [lastFormData, setLastFormData] = useState<FormData | null>(null);
   const [mode, setMode] = useState<'lite' | 'architect'>('architect');
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [scrapedData, setScrapedData] = useState<ScrapedEventData | null>(null);
 
   const handleExtraction = useCallback((data: ScrapedEventData) => {
@@ -75,7 +74,7 @@ export default function CreateEventPage() {
         <div className="animate-slide-up" style={{ animationDelay: "200ms" }}>
           
           <div className="mb-8">
-             <ModeSelector selected={mode} onSelect={setMode} />
+             <ModeSelector mode={mode} onChange={setMode} />
           </div>
 
           <AnimatePresence mode="wait">
@@ -113,11 +112,11 @@ export default function CreateEventPage() {
                       
                       {/* Error Display */}
                       {error && (
-                         <GenerationError 
-                            error={error} 
-                            onRetry={handleRetry} 
-                            isRetrying={isPending} 
-                         />
+                         <GenerationError                             error={error} 
+                             onRetry={handleRetry} 
+                             isRetrying={isPending}
+                             retryCount={retryCount} 
+                          /> 
                       )}
                    </form>
                 </div>

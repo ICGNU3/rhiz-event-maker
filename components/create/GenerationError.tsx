@@ -3,7 +3,8 @@ import { getUserFriendlyMessage } from "@/lib/errors";
 interface GenerationErrorProps {
   error: Error;
   retryCount: number;
-  isPending: boolean;
+  isPending?: boolean;
+  isRetrying?: boolean;
   onRetry: () => void;
 }
 

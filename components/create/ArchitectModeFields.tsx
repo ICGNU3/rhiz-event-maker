@@ -9,9 +9,10 @@ interface ArchitectModeFieldsProps {
     relationshipIntent?: string;
   };
   scrapedData?: ScrapedEventData | null;
+  isPending?: boolean;
 }
 
-export function ArchitectModeFields({ defaultValues, scrapedData }: ArchitectModeFieldsProps) {
+export function ArchitectModeFields({ defaultValues, scrapedData, isPending }: ArchitectModeFieldsProps) {
   return (
     <>
       <div className="space-y-4 group animate-fade-in">
@@ -22,8 +23,9 @@ export function ArchitectModeFields({ defaultValues, scrapedData }: ArchitectMod
           name="eventBasics"
           defaultValue={scrapedData?.description ? `${scrapedData.title || ''} - ${scrapedData.description}` : defaultValues?.eventBasics}
           placeholder="Describe your event... e.g. 'A high-energy hackathon in Tokyo for 200 crypto-natives looking to build the future of privacy.'"
-          className="w-full bg-surface-950 border-0 border-b-2 border-surface-800 focus:border-brand-500 text-xl md:text-3xl font-light text-white placeholder-surface-700 py-3 md:py-4 px-0 resize-none outline-none transition-all focus:ring-0 min-h-[140px] md:min-h-[160px] leading-tight"
+          className="w-full bg-surface-950 border-0 border-b-2 border-surface-800 focus:border-brand-500 text-xl md:text-3xl font-light text-white placeholder-surface-700 py-3 md:py-4 px-0 resize-none outline-none transition-all focus:ring-0 min-h-[140px] md:min-h-[160px] leading-tight disabled:opacity-50"
           required
+          disabled={isPending}
         />
       </div>
 

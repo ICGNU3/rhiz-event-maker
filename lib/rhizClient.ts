@@ -1,4 +1,4 @@
-import { RhizClient, InteractionCreate, PeopleClient, PersonCreate, NlpClient, ContextTagsClient, ContextTagCreate, ZkClient, IdentityHelper } from "./protocol-sdk";
+import { RhizClient, InteractionCreate, PeopleClient, NlpClient, ContextTagsClient, ContextTagCreate, ZkClient, IdentityHelper } from "./protocol-sdk";
 import { RelationshipDetail, OpportunityMatch, PersonRead } from "./protocol-sdk/types";
 import { Session } from "./types";
 import { withTimeout } from "./errorHandling";

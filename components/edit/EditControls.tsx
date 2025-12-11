@@ -1,6 +1,6 @@
 "use client";
 
-import { Save, X, Loader2 } from "lucide-react";
+import { Save, Loader2 } from "lucide-react";
 
 interface EditControlsProps {
   isSaving: boolean;

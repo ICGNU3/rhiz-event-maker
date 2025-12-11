@@ -7,9 +7,10 @@ interface LiteModeFieldsProps {
     eventBasics?: string;
     // tone is handled via state in this component, might be tricky to prefill without more logic
   };
+  isPending?: boolean;
 }
 
-export function LiteModeFields({ defaultValues }: LiteModeFieldsProps) {
+export function LiteModeFields({ defaultValues, isPending }: LiteModeFieldsProps) {
   const [selectedVibe, setSelectedVibe] = useState(VIBE_PRESETS[0].id);
 
   return (
@@ -25,6 +26,7 @@ export function LiteModeFields({ defaultValues }: LiteModeFieldsProps) {
           placeholder="e.g. Wednesday Night Hoops"
           className="w-full bg-surface-950 border-0 border-b-2 border-surface-800 focus:border-brand-500 text-2xl md:text-3xl font-light text-white placeholder-surface-700 py-2 px-0 outline-none transition-all focus:ring-0"
           required
+          disabled={isPending}
         />
       </div>
 

@@ -14,6 +14,10 @@ import {
 } from "@/lib/services/events";
 import { syncEventToProtocol } from "@/lib/services/sync";
 
+export async function getEvent(slug: string) {
+  return getEventBySlug(slug);
+}
+
 /**
  * Generate event configuration with comprehensive error handling
  * Orchestrates: Inputs -> AI -> DB -> Sync

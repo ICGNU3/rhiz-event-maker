@@ -158,13 +158,13 @@ export type EventAppConfig = {
     sensitiveTopics: string[];
   };
   content?: {
-    eventName: string;
-    tagline: string;
-    date: string;
-    location: string;
-    speakers: Speaker[];
-    schedule: Session[];
-    sampleAttendees: GraphAttendee[]; // Updated to GraphAttendee to include detailed info
+    eventName?: string;
+    tagline?: string;
+    date?: string;
+    location?: string;
+    speakers?: Speaker[];
+    schedule?: Session[];
+    sampleAttendees?: GraphAttendee[]; // Updated to GraphAttendee to include detailed info
   };
 };
 

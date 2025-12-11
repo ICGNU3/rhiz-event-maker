@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { useDropzone } from "react-dropzone"; // You might need to install this or implement a simple valid equivalent if not available.
+// import { useDropzone } from "react-dropzone";
 // Since package.json didn't show react-dropzone, I'll implement a simple one with valid HTML5 API or check if I should install it.
 // Checking package.json... it wasn't there. I'll stick to a simple input for now or standard drag/drop using standard generic HTML5 events to avoid new deps if possible,
 // but for "Vision Mode" a nice UI is expected. I'll use standard events.
@@ -38,11 +38,22 @@ export function ImageUploader({ onExtractionComplete }: ImageUploaderProps) {
       const result = await extractDetailsFromImage(formData);
 
       if (result.success && result.data) {
-        onExtractionComplete(result.data);
+        // null vs undefined mismatch fix
+        const sanitized: ScrapedEventData = {
+           title: result.data.eventName ?? undefined,
+           date: result.data.eventDate ?? undefined,
+           location: result.data.eventLocation ?? undefined,
+           description: result.data.description ?? undefined,
+           hosts: [], // Default or map if available
+           goals: undefined, // BAML result doesn't have goals in PartialEventDetails
+           audience: undefined,
+           tone: result.data.vibe ?? undefined,
+        };
+        onExtractionComplete(sanitized);
       } else {
         setError(result.error || "Failed to extract details");
       }
-    } catch (err) {
+    } catch {
       setError("Something went wrong during extraction");
     } finally {
       setIsAnalyzing(false);

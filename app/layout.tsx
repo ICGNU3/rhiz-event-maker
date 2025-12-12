@@ -15,25 +15,25 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Event Architect | AI-Powered Event Design",
+  title: "EventManage.ai | AI-Powered Event Design",
   description: "Design identity-aware event experiences with AI-powered networking, smart matchmaking, and seamless registration. Powered by Rhiz Protocol.",
   keywords: ["event management", "AI events", "networking", "matchmaking", "event design", "Rhiz Protocol"],
-  authors: [{ name: "Rhiz" }],
-  creator: "Rhiz",
-  publisher: "Rhiz",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://eventarchitect.app"),
+  authors: [{ name: "EventManage.ai" }],
+  creator: "EventManage.ai",
+  publisher: "EventManage.ai",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://eventmanage.ai"),
   openGraph: {
     type: "website",
     locale: "en_US",
-    siteName: "Event Architect",
-    title: "Event Architect | AI-Powered Event Design",
+    siteName: "EventManage.ai",
+    title: "EventManage.ai | AI-Powered Event Design",
     description: "Design identity-aware event experiences with AI-powered networking, smart matchmaking, and seamless registration.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Event Architect | AI-Powered Event Design",
+    title: "EventManage.ai | AI-Powered Event Design",
     description: "Design identity-aware event experiences with AI-powered networking and smart matchmaking.",
-    creator: "@RhizProtocol",
+    creator: "@EventManageAI",
   },
   robots: {
     index: true,

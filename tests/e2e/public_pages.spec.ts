@@ -4,8 +4,9 @@ test.describe('Public Pages Availability', () => {
 
   test('Home page loads and has main CTA', async ({ page }) => {
     await page.goto('/');
-    // Check for the main heading "Event Architect"
+    // Check for the main heading "EventManage.ai"
     await expect(page.locator('h1')).toContainText('Event');
+    await expect(page.locator('h1')).toContainText('Manage.ai');
     // Check for "Start Building" CTA link
     await expect(page.getByRole('link', { name: /Start Building/i })).toBeVisible();
   });

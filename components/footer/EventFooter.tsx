@@ -10,7 +10,7 @@ export const EventFooter = () => {
                {/* eslint-disable-next-line @next/next/no-img-element */}
                <img src="/logo.svg" alt="Event Architect Logo" className="w-full h-full" />
              </div>
-             <h3 className="text-xl font-heading font-bold text-white">Event Architect</h3>
+             <h3 className="text-xl font-heading font-bold text-white">EventManage.ai</h3>
           </div>
           <p className="text-neutral-400 max-w-md">
             Coordination replaces competition when networks can see themselves.

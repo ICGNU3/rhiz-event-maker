@@ -9,7 +9,7 @@ export async function scrapeEventUrl(url: string): Promise<ScrapedEventData | nu
   try {
     const response = await fetch(url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; GatherXbot/1.0; +http://gatherx.io)'
+        'User-Agent': 'Mozilla/5.0 (compatible; EventManageBot/1.0; +http://eventmanage.ai)'
       }
     });
 

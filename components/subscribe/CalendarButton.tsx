@@ -21,7 +21,7 @@ export function CalendarButton({ event, variant = "secondary" }: CalendarButtonP
   // Helper to format dates for Google Calendar
   const formatDate = (date: Date) => date.toISOString().replace(/-|:|\.\d\d\d/g, "");
 
-  const googleUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.name)}&dates=${formatDate(event.startDate)}/${formatDate(event.endDate)}&details=${encodeURIComponent("Join us via Event Architect.")}&location=${encodeURIComponent(event.venueType === "virtual" ? "Virtual" : "TBD")}`;
+  const googleUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.name)}&dates=${formatDate(event.startDate)}/${formatDate(event.endDate)}&details=${encodeURIComponent("Join us via EventManage.ai.")}&location=${encodeURIComponent(event.venueType === "virtual" ? "Virtual" : "TBD")}`;
 
   // const handleCopyLink = () => {
   //   navigator.clipboard.writeText(window.location.href);

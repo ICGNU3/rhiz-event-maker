@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   return {
-    title: `${event.config.content.eventName} | GatherX`,
+    title: `${event.config.content.eventName} | EventManage.ai`,
     description: event.config.content.tagline,
     openGraph: {
       images: event.config.backgroundImage ? [event.config.backgroundImage] : [],

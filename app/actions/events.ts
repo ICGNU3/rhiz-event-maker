@@ -35,83 +35,92 @@ export async function generateEventConfig(
     return { success: false, error: "Unauthorized: You must be logged in to create events." };
   }
 
+  // 1.5 Rate Limiting
+  const { limiter } = await import("@/lib/rate-limit");
+  const { ErrorCode } = await import("@/lib/errors/codes");
+  
+  // Rate limit based on user ID. Limit: 10 expensive generations per hour.
+  const limitResult = await limiter.checkLimit(userId, 10);
+  
+  if (!limitResult.success) {
+      const { AppError } = await import("@/lib/errors/codes");
+      // Use our AppError system so UI shows specific message
+      throw new AppError("Rate limit exceeded", ErrorCode.RATE_LIMIT_EXCEEDED, 429);
+  }
+
   // 2. Input Extraction & Validation
-  const eventBasics = (formData.get("eventBasics") as string) || "";
-  const eventDate = (formData.get("eventDate") as string) || "";
-  const eventLocation = (formData.get("eventLocation") as string) || "";
-  const goalsStr = (formData.get("goals") as string) || "";
-  const goals = goalsStr.split(",").map((s) => s.trim()).filter(Boolean);
-  const audience = (formData.get("audience") as string) || "General Audience";
-  const relationshipIntent = (formData.get("relationshipIntent") as string) || "medium";
-  const tone = (formData.get("tone") as string) || "professional";
+  const { sanitizeText } = await import("@/lib/validation/sanitize");
+  const { eventGenerationInputSchema, ticketTierSchema } = await import("@/lib/validation/schemas");
+
+  const inputs = {
+      eventBasics: sanitizeText(formData.get("eventBasics") as string),
+      explicitEventName: sanitizeText(formData.get("eventName") as string),
+      eventDate: sanitizeText(formData.get("eventDate") as string),
+      eventLocation: sanitizeText(formData.get("eventLocation") as string),
+      goals: (formData.get("goals") as string)?.split(",").map(s => sanitizeText(s.trim())).filter(Boolean) as string[] || [],
+      audience: sanitizeText(formData.get("audience") as string),
+      relationshipIntent: sanitizeText(formData.get("relationshipIntent") as string),
+      tone: sanitizeText(formData.get("tone") as string),
+      type: sanitizeText(formData.get("type") as string) || "architect"
+  };
+
+  // Asset handling: Client now takes care of upload and sends URL
+  const logoUrl = sanitizeText(formData.get("logo") as string);
+  const backgroundUrl = sanitizeText(formData.get("background") as string);
   
-  // Handle Assets (Simple Base64 for MVP, though inefficient)
-  const logoFile = formData.get("logo") as File;
-  const backgroundFile = formData.get("background") as File;
-  
-  let logoUrl: string | undefined;
-  let backgroundUrl: string | undefined;
-
-  if (logoFile && logoFile.size > 0) {
-      const buf = Buffer.from(await logoFile.arrayBuffer());
-      logoUrl = `data:${logoFile.type};base64,${buf.toString('base64')}`;
+  // Validate basic inputs
+  const validation = eventGenerationInputSchema.safeParse(inputs);
+  if (!validation.success) {
+      // Format validation errors
+      const errorMsg = validation.error.issues.map(i => `${i.path.join(".")}: ${i.message}`).join(", ");
+      const { AppError, ErrorCode } = await import("@/lib/errors/codes");
+      throw new AppError(errorMsg, ErrorCode.VALIDATION_ERROR, 400); 
   }
-  if (backgroundFile && backgroundFile.size > 0) {
-      const buf = Buffer.from(await backgroundFile.arrayBuffer());
-      backgroundUrl = `data:${backgroundFile.type};base64,${buf.toString('base64')}`;
-  }
-
-  const rawType = formData.get("type") as string;
-  const eventType = rawType === "lite" || rawType === "architect" ? rawType : "architect";
-  const explicitEventName = (formData.get("eventName") as string) || "";
-
-  if (eventType === "architect" && (!eventBasics || eventBasics.length < 10)) {
-    return { success: false, error: "Please describe your event in more detail (10+ chars)" };
-  }
-  if (eventType === "lite" && !explicitEventName) {
-    return { success: false, error: "Event Name is required" };
-  }
-  if (!eventDate) return { success: false, error: "Event date is required" };
-  if (!eventLocation) return { success: false, error: "Event location is required" };
-  if (goals.length === 0) return { success: false, error: "At least one goal is required" };
 
   try {
     // 3. AI Generation
-    const inputs: EventGenerationInputs = {
-      eventBasics,
-      explicitEventName,
-      eventDate,
-      eventLocation,
-      goals,
-      audience,
-      relationshipIntent,
-      tone,
+    const aiInputs: EventGenerationInputs = {
+      eventBasics: inputs.eventBasics || "",
+      explicitEventName: inputs.explicitEventName || "",
+      eventDate: inputs.eventDate,
+      eventLocation: inputs.eventLocation,
+      goals: inputs.goals,
+      audience: inputs.audience || "General Audience",
+      relationshipIntent: inputs.relationshipIntent || "medium",
+      tone: inputs.tone || "professional",
       logoUrl,
       backgroundUrl
     };
 
-    console.log("Generating config for logic:", eventType);
-    const { config, eventId } = await generateEventConfigFromInputs(inputs);
+    console.log("Generating config for logic:", inputs.type);
+    const { config, eventId } = await generateEventConfigFromInputs(aiInputs);
     
     // Parse manual ticket tiers
     const manualTiers: import("@/lib/types").TicketTier[] = [];
     let i = 0;
     while (formData.has(`tiers[${i}][name]`)) {
-        manualTiers.push({
-            id: formData.get(`tiers[${i}][id]`) as string || crypto.randomUUID(),
-            name: formData.get(`tiers[${i}][name]`) as string,
+        const tierRaw = {
+            id: sanitizeText(formData.get(`tiers[${i}][id]`) as string) || crypto.randomUUID(),
+            name: sanitizeText(formData.get(`tiers[${i}][name]`) as string),
             price: Number(formData.get(`tiers[${i}][price]`)) || 0,
             currency: "USD",
             features: [],
             capacity: 100,
-            description: formData.get(`tiers[${i}][description]`) as string,
-            paymentUrl: formData.get(`tiers[${i}][paymentUrl]`) as string,
-        });
+            description: sanitizeText(formData.get(`tiers[${i}][description]`) as string),
+            paymentUrl: sanitizeText(formData.get(`tiers[${i}][paymentUrl]`) as string),
+        };
+        
+        // Validate tier
+        const tierValidation = ticketTierSchema.safeParse(tierRaw);
+        if (tierValidation.success) {
+             manualTiers.push(tierValidation.data as import("@/lib/types").TicketTier);
+        }
         i++;
     }
 
     // Merge manual tiers with AI tiers
     if (manualTiers.length > 0) {
+        // Explicitly cast to ensure type safety with the EventAppConfig
         config.ticketing = {
             enabled: true,
             tiers: [
@@ -119,23 +128,26 @@ export async function generateEventConfig(
                 ...manualTiers
             ]
         };
+    } else {
+        // Ensure ticketing is properly initialized if undefined in BAML result
+         if (!config.ticketing) {
+             config.ticketing = { enabled: false, tiers: [] };
+         } else if (!config.ticketing.tiers) {
+             config.ticketing.tiers = [];
+         }
     }
 
     // 4. Persistence
-    await createEventInDb(eventId, config, eventType, userId);
+    await createEventInDb(eventId, config, inputs.type, userId);
 
     // 5. Protocol Sync
-    // We run this non-blocking or blocking? Previously distinct try-catch blocks.
-    // We'll run it and log errors internally in the service, or here.
-    // The service I wrote catches errors but log them.
     await syncEventToProtocol(eventId, config);
 
     return { success: true, data: { ...config, eventId } };
 
   } catch (error: unknown) {
-    console.error("Server Action Error:", error);
-    const message = error instanceof Error ? error.message : "An unexpected error occurred";
-    return { success: false, error: message };
+     const { handleError } = await import("@/lib/errors/handler");
+     return handleError(error);
   }
 }
 
@@ -150,36 +162,66 @@ export async function updateEventConfig(
     const { userId } = await auth();
     if (!userId) return { success: false, error: "Unauthorized" };
 
+    const { eventUpdateSchema } = await import("@/lib/validation/schemas");
+    const { sanitizeObject } = await import("@/lib/validation/sanitize");
+
+    // Retrieve current event to verify ownership
     const current = await getEventBySlug(eventId);
     if (!current) {
         throw new Error("Event not found");
     }
 
+    // STRICT OWNER CHECK
     if (current.ownerId !== userId) {
-       return { success: false, error: "Forbidden" };
+       console.error(`Auth Error: User ${userId} tried to update event ${eventId} owned by ${current.ownerId}`);
+       return { success: false, error: "Forbidden: You do not own this event." };
     }
 
+    // Sanitize and Validate Updates
+    const sanitizedUpdates = sanitizeObject(updates);
+    const validation = eventUpdateSchema.safeParse(sanitizedUpdates);
+    
+    // Note: Partial updates might fail full schema parsing if schema expects required fields.
+    // However, eventUpdateSchema handles optionality for update context.
+    if (!validation.success) {
+         return { success: false, error: "Invalid updates: " + validation.error.issues.map(e => e.message).join(", ") };
+    }
+    const safeUpdates = validation.data;
+
     // Merge logic
-    const newConfig = {
+    // We only merge 3 levels deep if needed, but for now strict replace of sub-objects or shallow merge
+    const newConfig: EventAppConfig = {
         ...current.config,
-        ...updates,
+        ...safeUpdates,
         content: {
             ...current.config.content,
-            ...updates.content,
+            ...safeUpdates.content,
+            // Ensure schedule items have eventId if they are being updated
+            schedule: safeUpdates.content?.schedule?.map(s => ({
+                ...s,
+                eventId: eventId,
+                id: s.id || crypto.randomUUID(), // Ensure ID exists
+                startTime: new Date(s.startTime),
+                endTime: new Date(s.endTime),
+            })) || current.config.content?.schedule,
         },
         branding: {
             ...current.config.branding,
-            ...updates.branding,
+            ...safeUpdates.branding,
         },
+        ticketing: (safeUpdates.ticketing || current.config.ticketing) ? {
+             enabled: safeUpdates.ticketing?.enabled ?? current.config.ticketing?.enabled ?? false,
+             tiers: safeUpdates.ticketing?.tiers ?? current.config.ticketing?.tiers ?? []
+        } : undefined,
         updatedAt: new Date()
     };
 
-    await updateEventInDb(eventId, newConfig);
+    await updateEventInDb(eventId, newConfig, userId);
 
     return { success: true, data: newConfig };
   } catch (error) {
-      console.error("Update failed:", error);
-      return { success: false, error: String(error) };
+     const { handleError } = await import("@/lib/errors/handler");
+     return handleError(error);
   }
 }
 

@@ -195,6 +195,7 @@ export type Session = {
   format: string;
   track?: string;
   room?: string;
+  location?: string; // Adding alias for room/location normalization
   capacity?: number;
   speakers: string[];
 };

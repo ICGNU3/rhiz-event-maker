@@ -53,7 +53,10 @@ export default function CreateEventPage() {
         
         if (!result.success || !result.data) {
            const errMsg = result.error || "Unknown error occurred";
-           setError(new Error(errMsg));
+           const err = new Error(errMsg);
+           // @ts-expect-error - Attach code for UI handling
+           if (result.code) err.code = result.code; 
+           setError(err);
            return;
         }
 

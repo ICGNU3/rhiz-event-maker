@@ -1,7 +1,6 @@
-
 "use client";
 
-import { Calendar, Check } from "lucide-react";
+import { Calendar } from "lucide-react";
 import { useState } from "react";
 import { Event } from "@/lib/types";
 
@@ -17,18 +16,18 @@ interface CalendarButtonProps {
  */
 export function CalendarButton({ event, variant = "secondary" }: CalendarButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
+  // const [copied, setCopied] = useState(false);
 
   // Helper to format dates for Google Calendar
   const formatDate = (date: Date) => date.toISOString().replace(/-|:|\.\d\d\d/g, "");
 
   const googleUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.name)}&dates=${formatDate(event.startDate)}/${formatDate(event.endDate)}&details=${encodeURIComponent("Join us via Event Architect.")}&location=${encodeURIComponent(event.venueType === "virtual" ? "Virtual" : "TBD")}`;
 
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(window.location.href);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+  // const handleCopyLink = () => {
+  //   navigator.clipboard.writeText(window.location.href);
+  //   setCopied(true);
+  //   setTimeout(() => setCopied(false), 2000);
+  // };
 
   return (
     <div className="relative">

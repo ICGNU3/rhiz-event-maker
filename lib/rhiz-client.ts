@@ -85,7 +85,7 @@ export async function logEventInteraction({
 export async function findIntroductionPath(
   fromPersonId: string,
   toPersonId: string,
-  maxHops: number = 3
+  _maxHops: number = 3 // eslint-disable-line @typescript-eslint/no-unused-vars
 ) {
   // TODO: Implement when HealthClient is available
   // This will use the warm path finding from the SDK
@@ -100,7 +100,7 @@ export async function findIntroductionPath(
 export async function getRecommendedConnections(
   personId: string,
   ownerId: string,
-  eventContext?: string
+  _eventContext?: string // eslint-disable-line @typescript-eslint/no-unused-vars
 ) {
   try {
     const relationships = await rhizClient.listRelationships({
@@ -145,7 +145,7 @@ export async function syncAttendee({
 
     console.log(`✅ Synced attendee: ${attendee.name}`);
     return person;
-  } catch (error) {
+  } catch {
     // Person might already exist
     console.log(`ℹ️  Attendee may already exist: ${attendee.name}`);
     return null;

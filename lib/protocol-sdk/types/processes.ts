@@ -26,7 +26,7 @@ export interface ProcessCreate {
   owner_person_id: string;
   goal_id: string;
   process_type: ProcessType;
-  initial_state?: Record<string, any>;
+  initial_state?: Record<string, unknown>;
 }
 
 export interface ProcessView {
@@ -35,14 +35,14 @@ export interface ProcessView {
   goal_id: string;
   process_type: ProcessType;
   status: ProcessStatus;
-  state_json: Record<string, any>;
+  state_json: Record<string, unknown>;
   created_at: string;
   updated_at: string;
 }
 
 export interface ProcessUpdate {
   status?: ProcessStatus;
-  state_json?: Record<string, any>;
+  state_json?: Record<string, unknown>;
 }
 
 export interface ProcessListResponse {
@@ -58,8 +58,8 @@ export interface ProcessStepView {
   step_type: string;
   status: StepStatus;
   microagent_type: MicroagentType;
-  input_state: Record<string, any>;
-  output_state?: Record<string, any>;
+  input_state: Record<string, unknown>;
+  output_state?: Record<string, unknown>;
   attempt_count: number;
   error_count: number;
   needs_consensus: boolean;
@@ -71,7 +71,7 @@ export interface ProcessStepCreate {
   process_id: string;
   step_type: string;
   microagent_type: MicroagentType;
-  input_state: Record<string, any>;
+  input_state: Record<string, unknown>;
   needs_consensus?: boolean;
 }
 
@@ -84,7 +84,7 @@ export interface ProcessExecutionResponse {
   step: ProcessStepView;
   execution_status: "success" | "failed" | "skipped";
   error_message?: string;
-  output_state?: Record<string, any>;
+  output_state?: Record<string, unknown>;
 }
 
 export interface ProcessDetailResponse extends ProcessView {

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 // Configuration
 const CONFIG = {
@@ -141,7 +141,7 @@ export const InteractiveNetworkBackground: React.FC = () => {
         const mouseDistSq = CONFIG.mouseDistance * CONFIG.mouseDistance;
         
         if (distMouseSq < mouseDistSq) {
-          const distMouse = Math.sqrt(distMouseSq);
+          // const distMouse = Math.hypot(dxMouse, dyMouse);Sq);
           const angle = Math.atan2(dyMouse, dxMouse);
           point.vx += Math.cos(angle) * 0.01;
           point.vy += Math.sin(angle) * 0.01;

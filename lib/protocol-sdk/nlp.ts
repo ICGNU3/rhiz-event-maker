@@ -106,7 +106,7 @@ export class NlpClient {
    * Find opportunity matches for a person based on shared context and goals.
    * Currently mocks the response until backend endpoint is active.
    */
-  async findOpportunityMatches(args: {
+  async findOpportunityMatches(_args: {
     personId: string;
     limit?: number;
     // In a real implementation, we would pass context/event ID here

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect } from "react";
+import { motion } from "framer-motion";
 import { ArrowRight, Sparkles, Loader2, Upload, FileImage, Link as LinkIcon } from "lucide-react";
 
 interface CreateActionBarProps {
@@ -19,13 +19,10 @@ export function CreateActionBar({
   onOpenFlyerCreator,
   onOpenImport
 }: CreateActionBarProps) {
-  const [isVisible, setIsVisible] = useState(false);
-
   useEffect(() => {
     const handleScroll = () => {
       // Show after scrolling a bit or always show if content is long
       // For now, let's fade it in after mount immediately
-      setIsVisible(true);
     };
     handleScroll();
   }, []);

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Sparkles, Download, Image as ImageIcon } from "lucide-react";
+import { X, Sparkles, Image as ImageIcon } from "lucide-react";
 
 interface FlyerGeneratorProps {
   isOpen: boolean;

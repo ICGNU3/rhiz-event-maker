@@ -1,8 +1,8 @@
-
 "use client";
 
 import { ConnectionSuggestion, Attendee } from "@/lib/types";
-import { Sparkles, MessageCircle, ThumbsUp } from "lucide-react";
+// import { Sparkles, MessageCircle, ArrowRight, ThumbsDown, ThumbsUp } from "lucide-react";
+import { Sparkles, MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface MatchmakingCardProps {

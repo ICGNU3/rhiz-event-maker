@@ -70,6 +70,7 @@ export function EventLandingPage({ config: initialConfig }: EventLandingPageProp
           id: s.id,
           title: s.title,
           time: `${new Date(s.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           track: s.track as any, // Cast to match strict union if needed
           description: s.description,
           speaker: {

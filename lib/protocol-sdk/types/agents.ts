@@ -14,7 +14,7 @@ export interface AgentInteractionSummary {
 export interface AgentCredentialView {
   type: string[];
   issuer_did?: string;
-  claims: Record<string, any>;
+  claims: Record<string, unknown>;
   issued_at?: string;
   expires_at?: string;
 }
@@ -57,5 +57,5 @@ export interface AgentChatResponse {
   agent_name: string;
   profile?: DIDAgentProfile;
   response_message: AgentChatMessage;
-  usage?: Record<string, any>;
+  usage?: Record<string, unknown>;
 }

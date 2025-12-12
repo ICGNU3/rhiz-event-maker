@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { X, Link as LinkIcon, AlertCircle, CheckCircle2 } from "lucide-react";
+import { X, Link as LinkIcon, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { scrapeEventUrl } from "@/app/actions/import-event";
 import { ScrapedEventData } from "@/lib/types";

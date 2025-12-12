@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
-import { events, registrations } from "@/lib/db/schema";
-import { eq, count, sql, desc, gte } from "drizzle-orm";
+import { events } from "@/lib/db/schema";
+import { eq, count } from "drizzle-orm";
 
 export interface DashboardMetrics {
   kpi: {

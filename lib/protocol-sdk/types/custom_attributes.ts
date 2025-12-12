@@ -10,7 +10,7 @@ export interface CustomAttributeBase {
   entity_type: string;
   entity_id: string;
   attribute_key: string;
-  attribute_value: string | number | boolean | Record<string, any> | any[];
+  attribute_value: string | number | boolean | Record<string, unknown> | unknown[];
   value_type: CustomAttributeValueType;
 }
 
@@ -19,7 +19,7 @@ export interface CustomAttributeCreate extends CustomAttributeBase {
 }
 
 export interface CustomAttributeUpdate {
-  attribute_value?: string | number | boolean | Record<string, any> | any[];
+  attribute_value?: string | number | boolean | Record<string, unknown> | unknown[];
   value_type?: CustomAttributeValueType;
 }
 

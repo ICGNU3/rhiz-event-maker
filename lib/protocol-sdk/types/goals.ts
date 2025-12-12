@@ -22,7 +22,7 @@ export interface GoalCreate {
   priority: GoalPriority;
   target_date?: string; // ISO date
   context_tags?: string[];
-  constraints?: Record<string, any>;
+  constraints?: Record<string, unknown>;
 }
 
 export interface GoalUpdate {
@@ -33,7 +33,7 @@ export interface GoalUpdate {
   target_date?: string; // ISO date
   status?: GoalStatus;
   context_tags?: string[];
-  constraints?: Record<string, any>;
+  constraints?: Record<string, unknown>;
 }
 
 export interface GoalView {
@@ -46,7 +46,7 @@ export interface GoalView {
   target_date?: string;
   status: GoalStatus;
   context_tags: string[];
-  constraints: Record<string, any>;
+  constraints: Record<string, unknown>;
   created_at: string;
   updated_at: string;
 }
@@ -74,7 +74,7 @@ export interface GoalTask {
   requester_did: string;
   requester_person_id: string;
   context_tags: string[];
-  constraints: Record<string, any>;
+  constraints: Record<string, unknown>;
 }
 
 export interface GoalTaskResponse {

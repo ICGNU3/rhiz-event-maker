@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createEventInDb, getEventBySlug, updateEventInDb } from '../events';
+import { createEventInDb, getEventBySlug } from '../events';
 import { db } from '@/lib/db';
-import { events } from '@/lib/db/schema';
+// events schema import removed as it was unused
 import { EventAppConfig } from '@/lib/types';
 
 // Mock the DB
@@ -70,7 +70,7 @@ describe('Event Services', () => {
             limit: vi.fn().mockResolvedValue([])
           })
         })
-      } as any);
+      } as unknown);
 
       const result = await getEventBySlug('non-existent');
       expect(result).toBeNull();
@@ -86,7 +86,7 @@ describe('Event Services', () => {
             }])
           })
         })
-      } as any);
+      } as unknown);
 
       const result = await getEventBySlug('test-event');
       expect(result).not.toBeNull();

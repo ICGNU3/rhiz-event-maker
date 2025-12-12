@@ -7,7 +7,7 @@ import {
   GoalUpdate,
   GoalView,
   GoalListResponse,
-  GoalTaskResponse,
+  // GoalTaskResponse,
   OrchestratedPlan,
   GoalsQueryParams,
 } from './types';

@@ -64,8 +64,6 @@ export async function logEventInteraction({
       summary: notes || `Met at ${eventName}`,
       context_tags: ["event", context, eventId],
       outcome_tag: "connection_made",
-      // Use idempotency key to prevent duplicates
-      idempotency_key: `event-${eventId}-${attendee1Id}-${attendee2Id}`,
     });
 
     console.log(`✅ Logged interaction at ${eventName}`);

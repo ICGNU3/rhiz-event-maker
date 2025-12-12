@@ -18,13 +18,15 @@ interface ArchitectModeFieldsProps {
 export function ArchitectModeFields({ defaultValues, scrapedData, isPending }: ArchitectModeFieldsProps) {
   return (
     <>
-      <div className="space-y-4 group animate-fade-in">
-        <label className="text-xs font-mono text-brand-300 uppercase tracking-widest group-focus-within:text-brand-400 transition-colors">
-          01 // Event Essence
+      {/* Core Essence */}
+      <div className="space-y-1 animate-fade-in">
+        <label htmlFor="eventBasics" className="text-xs font-mono text-surface-500 uppercase tracking-widest">
+            Event Essence
         </label>
-        <div className="relative">
-             <textarea
+        <textarea
+              id="eventBasics"
               name="eventBasics"
+              aria-label="Event Description and Essence"
               defaultValue={scrapedData?.description ? `${scrapedData.title || ''} - ${scrapedData.description}` : defaultValues?.eventBasics}
               placeholder="Describe your event... e.g. 'A high-energy hackathon in Tokyo for 200 crypto-natives looking to build the future of privacy.'"
               className="w-full bg-surface-950 border-0 border-b-2 border-surface-800 focus:border-brand-500 text-xl md:text-3xl font-light text-white placeholder-surface-700 py-3 md:py-4 px-0 resize-none outline-none transition-all focus:ring-0 min-h-[140px] md:min-h-[160px] leading-tight disabled:opacity-50"
@@ -32,41 +34,7 @@ export function ArchitectModeFields({ defaultValues, scrapedData, isPending }: A
               minLength={20}
               disabled={isPending}
             />
-            <p className="text-xs text-surface-600 absolute bottom-2 right-0 pointer-events-none">
-              Minimum 20 characters
-            </p>
-        </div>
-      </div>
-
-      <div className="grid md:grid-cols-2 gap-8 md:gap-12 animate-fade-in">
-         <div className="space-y-4 group">
-            <label className="text-xs font-mono text-brand-300 uppercase tracking-widest group-focus-within:text-brand-400 transition-colors">
-              02 // Coordinates
-            </label>
-            <input
-               type="text"
-               name="eventLocation"
-               defaultValue={scrapedData?.location}
-               placeholder="e.g. 123 Innovation Dr, SF"
-               className="w-full bg-transparent border-0 border-b border-surface-700 focus:border-brand-500 text-lg md:text-xl text-white placeholder-surface-600 py-3 px-0 outline-none transition-all focus:ring-0"
-               required
-               disabled={isPending}
-            />
          </div>
-         <div className="space-y-4 group">
-            <label className="text-xs font-mono text-brand-300 uppercase tracking-widest group-focus-within:text-brand-400 transition-colors">
-              03 // Time Sync
-            </label>
-            <input
-               type="datetime-local"
-               name="eventDate"
-               defaultValue={scrapedData?.date}
-               className="w-full bg-transparent border-0 border-b border-surface-700 focus:border-brand-500 text-lg md:text-xl text-white placeholder-surface-600 py-3 px-0 outline-none transition-all focus:ring-0"
-               required
-               disabled={isPending}
-            />
-         </div>
-      </div>
 
       <div className="grid md:grid-cols-2 gap-8 md:gap-12 animate-fade-in">
         <div className="space-y-4 group">

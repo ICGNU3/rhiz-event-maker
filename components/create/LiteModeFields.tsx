@@ -22,38 +22,34 @@ export function LiteModeFields({ defaultValues, isPending }: LiteModeFieldsProps
         <label className="text-xs font-mono text-brand-300 uppercase tracking-widest group-focus-within:text-brand-400 transition-colors">
           Event Name
         </label>
-        <input
-          name="eventName"
-          defaultValue={defaultValues?.eventName}
-          placeholder="e.g. Wednesday Night Hoops"
-          maxLength={100}
-          className="w-full bg-surface-950 border-0 border-b-2 border-surface-800 focus:border-brand-500 text-2xl md:text-3xl font-light text-white placeholder-surface-700 py-2 px-0 outline-none transition-all focus:ring-0"
-          required
-          disabled={isPending}
-        />
-      </div>
+        <div className="space-y-4">
+          <input
+            name="eventName"
+            aria-label="Event Name"
+            defaultValue={defaultValues?.eventName}
+            placeholder="e.g. Wednesday Night Hoops"
+            maxLength={100}
+            className="w-full bg-surface-950 border-0 border-b-2 border-surface-800 focus:border-brand-500 text-2xl md:text-3xl font-light text-white placeholder-surface-700 py-2 px-0 outline-none transition-all focus:ring-0"
+            required
+            disabled={isPending}
+          />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2 group">
-           <label className="text-xs font-mono text-brand-300 uppercase tracking-widest group-focus-within:text-brand-400 transition-colors">
-              When
-           </label>
-           <input
-              type="datetime-local"
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input
               name="eventDate"
+              aria-label="Event Date"
+              type="text"
+              placeholder="When? e.g. Tomorrow at 7pm"
               defaultValue={defaultValues?.eventDate}
-              className="w-full bg-transparent border-0 border-b border-surface-800 focus:border-brand-500 text-lg text-surface-200 placeholder-surface-700 py-2 px-0 outline-none transition-all focus:ring-0"
+              className="w-full bg-surface-950 border-0 border-b-2 border-surface-800 focus:border-brand-500 text-xl font-light text-white placeholder-surface-700 py-2 px-0 outline-none transition-all focus:ring-0"
               required
               disabled={isPending}
-           />
-        </div>
-        <div className="space-y-2 group">
-           <label className="text-xs font-mono text-brand-300 uppercase tracking-widest group-focus-within:text-brand-400 transition-colors">
-              Where
-           </label>
-           <input
-              type="text"
+            />
+
+            <input
               name="eventLocation"
+              aria-label="Event Location"
+              type="text"
               defaultValue={defaultValues?.eventLocation}
               placeholder="e.g. Central Park"
               className="w-full bg-transparent border-0 border-b border-surface-800 focus:border-brand-500 text-lg text-surface-200 placeholder-surface-700 py-2 px-0 outline-none transition-all focus:ring-0"
@@ -62,6 +58,7 @@ export function LiteModeFields({ defaultValues, isPending }: LiteModeFieldsProps
            />
         </div>
       </div>
+    </div>
 
       {/* 2. Manual Description (Optional but Magic) */}
       <div className="space-y-2 group">

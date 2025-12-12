@@ -7,7 +7,9 @@ const isPublicRoute = createRouteMatcher([
   "/demo(.*)",
   "/",
   "/create(.*)",  // Allow viewing, auth required on form submit
-  "/e(.*)"
+  "/e(.*)",
+  "/opengraph-image",
+  "/twitter-image"
 ]);
 
 

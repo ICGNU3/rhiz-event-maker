@@ -26,7 +26,7 @@ export function GraphPreviewSection() {
     <section className="relative w-full py-24 px-6 border-t border-surface-900/50 bg-black overflow-hidden">
       {/* Background accents */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-500/5 blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-500/5 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-green-500/5 blur-[120px] rounded-full pointer-events-none" />
 
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16">
         
@@ -34,12 +34,12 @@ export function GraphPreviewSection() {
         <div className="lg:w-1/3 space-y-8 text-center lg:text-left z-10">
           <h2 className="text-4xl md:text-5xl font-heading font-bold text-white tracking-tight leading-[1.1]">
             See Your Future <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-green-400">
                Network.
             </span>
           </h2>
           <p className="text-lg text-surface-400 leading-relaxed">
-            Events aren't just about content. They're about connection.
+            Events aren&apos;t just about content. They&apos;re about connection.
             <br className="hidden md:block" />
             Our AI maps the room before you even arrive.
           </p>

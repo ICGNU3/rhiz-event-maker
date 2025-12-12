@@ -89,6 +89,7 @@ export function FlyerGenerator({ isOpen, onClose, onSelect, initialPrompt = "" }
                       </div>
                   ) : generatedImage ? (
                       <>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={generatedImage} alt="Generated Flyer" className="w-full h-full object-cover" />
                         <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                            <button 

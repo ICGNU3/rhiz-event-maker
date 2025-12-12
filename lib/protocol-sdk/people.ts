@@ -8,7 +8,7 @@ import {
   PersonUpdate,
   PersonListResponse,
   PersonBulkResponse,
-  PersonDetail,
+  PersonBulkResponse,
   OrganizationMembershipCreate,
   OrganizationMembershipRead,
   PeopleQueryParams,

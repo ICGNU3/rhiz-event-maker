@@ -1,6 +1,6 @@
-"use server";
-
-
+import { auth } from "@clerk/nextjs/server";
+import { generateCopySchema, solveScheduleSchema, rewriteContentSchema, outreachSchema } from "@/lib/validation/schemas";
+import { sanitizeText } from "@/lib/validation/sanitize";
 
 // NEW AI FEATURE ACTIONS
 // These enforce the promise of the "Intelligence Suite"
@@ -10,28 +10,37 @@
  * "Instant copy, agendas, intros & sponsor blurbs."
  */
 export async function generateEventCopy(context: {
-  eventId: string;
+  eventId?: string; // Made optional to match schema
   type: "intro" | "bio" | "email" | "tagline";
   tone?: string;
   subjectName?: string;
-}): Promise<{ success: boolean; text: string }> {
-  console.log("Generating copy for:", context);
+}): Promise<{ success: boolean; text: string; error?: string }> {
+  const { userId } = await auth();
+  if (!userId) return { success: false, text: "", error: "Unauthorized" };
+
+  const validation = generateCopySchema.safeParse(context);
+  if (!validation.success) {
+      return { success: false, text: "", error: "Invalid inputs" };
+  }
+  const safeContext = validation.data;
+
+  console.log("Generating copy for:", safeContext);
 
   // MOCK: In production this would call OpenAI/BAML
   await new Promise((r) => setTimeout(r, 1500));
 
   const responses: Record<string, string> = {
     intro: `Please welcome ${
-      context.subjectName || "our guest"
+      sanitizeText(safeContext.subjectName || "our guest")
     }. A visionary in their field, they are redefining how we think about the intersection of technology and humanity.`,
-    bio: `${context.subjectName} has spent the last decade building systems that matter. Formerly at TopTier Corp, now leading the charge at NextGen.`,
+    bio: `${sanitizeText(safeContext.subjectName || "Guest")} has spent the last decade building systems that matter. Formerly at TopTier Corp, now leading the charge at NextGen.`,
     tagline: "Where the future gathers to build what's next.",
     email: "Join us for an unforgettable experience.",
   };
 
   return {
     success: true,
-    text: responses[context.type] || "Content generated successfully.",
+    text: responses[safeContext.type] || "Content generated successfully.",
   };
 }
 
@@ -43,7 +52,13 @@ export async function generateEventCopy(context: {
 export async function solveSchedule(
   eventId: string,
   constraints: { maxConcurrent: number; bufferMinutes: number }
-): Promise<{ success: boolean; schedule: unknown; conflictsResolved: number }> {
+): Promise<{ success: boolean; schedule?: unknown; conflictsResolved?: number; error?: string }> {
+  const { userId } = await auth();
+  if (!userId) return { success: false, error: "Unauthorized" };
+
+  const validation = solveScheduleSchema.safeParse({ eventId, constraints });
+  if (!validation.success) return { success: false, error: "Invalid constraints" };
+
   console.log(`Solving schedule for ${eventId} with constraints`, constraints);
   // Mock constraint solver
   await new Promise((r) => setTimeout(r, 2000));
@@ -65,12 +80,21 @@ export async function solveSchedule(
 export async function rewriteContent(
   text: string,
   targetTone: "professional" | "playful" | "urgent"
-): Promise<string> {
+): Promise<{ success: boolean; text?: string; error?: string }> {
+  // Public utility potentially, but safer to auth
+  const { userId } = await auth();
+  if (!userId) return { success: false, error: "Unauthorized" };
+
+  const validation = rewriteContentSchema.safeParse({ text, targetTone });
+  if (!validation.success) return { success: false, error: "Invalid input" };
+  
+  const cleanText = sanitizeText(validation.data.text);
+
   console.log("Rewriting text to tone:", targetTone);
   if (targetTone === "playful") {
-    return text.replace(/\./g, "! 🚀") + " Let's go!";
+    return { success: true, text: cleanText.replace(/\./g, "! 🚀") + " Let's go!" };
   }
-  return text; // No-op for now
+  return { success: true, text: cleanText }; 
 }
 
 /**
@@ -81,13 +105,22 @@ export async function generateOutreachSequence(recipientProfile: {
   name: string;
   role: string;
   recentWork?: string;
-}): Promise<{ emailChain: string[] }> {
+}): Promise<{ success: boolean; emailChain?: string[]; error?: string }> {
+   const { userId } = await auth();
+   if (!userId) return { success: false, error: "Unauthorized" };
+
+   const validation = outreachSchema.safeParse({ recipientProfile });
+   if (!validation.success) return { success: false, error: "Invalid profile data" };
+
+   const profile = validation.data.recipientProfile;
+
   return {
+    success: true,
     emailChain: [
-      `Hi ${recipientProfile.name}, I saw your work on ${
-        recipientProfile.recentWork || "the project"
+      `Hi ${sanitizeText(profile.name)}, I saw your work on ${
+        sanitizeText(profile.recentWork || "the project")
       }...`,
-      `Just bumping this up, ${recipientProfile.name}...`,
+      `Just bumping this up, ${sanitizeText(profile.name)}...`,
     ],
   };
 }

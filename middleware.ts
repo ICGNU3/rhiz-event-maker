@@ -6,7 +6,7 @@ const isPublicRoute = createRouteMatcher([
   "/api/webhooks(.*)", 
   "/demo(.*)",
   "/",
-  "/create",
+  // "/create" is now protected
   "/e(.*)"
 ]);
 

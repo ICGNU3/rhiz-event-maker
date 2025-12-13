@@ -33,6 +33,8 @@ export class ChannelsClient {
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
+      'X-Rhiz-App-Id': 'eventmanage',
+      'X-Rhiz-Contract-Version': '1.0',
       ...(options.headers as Record<string, string> || {}),
     };
 

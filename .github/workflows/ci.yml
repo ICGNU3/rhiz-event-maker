@@ -8,9 +8,32 @@ on:
   workflow_dispatch:
 
 jobs:
+  lint-and-typecheck:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: TypeScript Check
+        run: npx tsc --noEmit --skipLibCheck
+
   build-and-test:
     runs-on: ubuntu-latest
-    
+    needs: lint-and-typecheck
+
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
@@ -23,9 +46,6 @@ jobs:
       NEXT_PUBLIC_STACK_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_STACK_PROJECT_ID }}
       NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY: ${{ secrets.NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY }}
       STACK_SECRET_SERVER_KEY: ${{ secrets.STACK_SECRET_SERVER_KEY }}
-      # Next.js may need this to skip static generation failures if secrets are missing during build, 
-      # but we are providing them. 
-      # CI=true is set automatically by GitHub Actions.
 
     steps:
       - name: Checkout code
@@ -34,8 +54,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -43,17 +63,12 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
-      - name: Lint
-        run: npm run lint
-
       - name: Build
         run: npm run build
 
       - name: Run E2E Tests
         run: npm run test:e2e
         env:
-          # If Playwright needs a different URL or config, adjust here.
-          # For now, assuming npm run test:e2e spins up the dev server or uses what's configured.
           CI: true
 
       - name: Upload Playwright Report
@@ -63,3 +78,39 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
+
+  contract-test:
+    runs-on: ubuntu-latest
+    needs: lint-and-typecheck
+    if: github.event_name == 'pull_request'
+
+    env:
+      RHIZ_API_URL: ${{ secrets.RHIZ_API_URL_LOCAL || 'http://localhost:8000' }}
+      RHIZ_API_TOKEN: ${{ secrets.RHIZ_API_TOKEN }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Contract Tests
+        run: npx tsx scripts/contract-test.ts
+        continue-on-error: true
+
+      - name: Contract Test Summary
+        run: |
+          echo "## Contract Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "Contract tests validate App Launch Contract v1 compliance." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Required headers:" >> $GITHUB_STEP_SUMMARY
+          echo "- \`X-Rhiz-App-Id: eventmanage\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`X-Rhiz-Contract-Version: 1.0\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`Authorization: Bearer <token>\`" >> $GITHUB_STEP_SUMMARY

@@ -21,6 +21,7 @@ import { EditControls } from '@/components/edit/EditControls';
 import { updateEventConfig } from '@/app/actions/events';
 import { Pencil } from 'lucide-react';
 import { CalendarButton } from '@/components/subscribe/CalendarButton';
+import { TicketPurchaseModal } from '@/components/registration/TicketPurchaseModal';
 
 
 interface EventLandingPageProps {
@@ -148,6 +149,20 @@ export function EventLandingPage({ config: initialConfig }: EventLandingPageProp
   };
 
   const [isRegistrationOpen, setIsRegistrationOpen] = React.useState(false);
+  const [isPurchaseModalOpen, setIsPurchaseModalOpen] = React.useState(false);
+  
+  const handlePrimaryAction = () => {
+    if (userProfile) {
+        pushToast({ title: 'You are registered', variant: 'info' });
+        return;
+    }
+
+    if (config.ticketing?.enabled && config.ticketing.tiers?.length > 0) {
+        setIsPurchaseModalOpen(true);
+    } else {
+        setIsRegistrationOpen(true);
+    }
+  };
   
   const handleRegister = async (data: { name: string; email: string }) => { 
       if (!config.eventId) return;
@@ -240,8 +255,8 @@ export function EventLandingPage({ config: initialConfig }: EventLandingPageProp
         location={config.content?.location || 'TBD'}
         backgroundImage={config.backgroundImage}
         primaryAction={{
-          label: userProfile ? `Welcome, ${userProfile.name}` : 'Get Tickets',
-          onClick: () => (userProfile ? pushToast({ title: 'You are registered', variant: 'info' }) : setIsRegistrationOpen(true)),
+          label: userProfile ? `Welcome, ${userProfile.name}` : (config.ticketing?.enabled ? 'Buy Tickets' : 'Get Tickets'),
+          onClick: handlePrimaryAction,
         }}
         theme={theme}
         isEditing={isEditing}
@@ -366,6 +381,13 @@ export function EventLandingPage({ config: initialConfig }: EventLandingPageProp
         isOpen={isRegistrationOpen}
         onClose={() => setIsRegistrationOpen(false)}
         onRegister={handleRegister}
+      />
+
+      <TicketPurchaseModal
+        isOpen={isPurchaseModalOpen}
+        onClose={() => setIsPurchaseModalOpen(false)}
+        eventId={config.eventId || ""}
+        tiers={config.ticketing?.tiers || []}
       />
       
       <EventFooter />

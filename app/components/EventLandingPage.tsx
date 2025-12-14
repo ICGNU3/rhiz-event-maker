@@ -2,7 +2,7 @@ import { useUser } from "@clerk/nextjs";
 import { useAuth } from "@clerk/nextjs";
 import React from 'react';
 import { EventAppConfig } from '@/lib/types';
-import { RelationshipDetail, OpportunityMatch } from '@/lib/protocol-sdk/types';
+import { RelationshipDetail, OpportunityMatch } from '@rhiz/protocol-sdk';
 import { HeroSection } from '@/components/hero/HeroSection';
 import { SpeakerSpotlight } from './speakers/SpeakerSpotlight';
 import { NetworkingGraph } from '@/components/networking/NetworkingGraph';

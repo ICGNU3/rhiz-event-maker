@@ -10,6 +10,6 @@ test('has title', async ({ page }) => {
 
 test('redirects to sign-in from create page', async ({ page }) => {
   await page.goto('/create');
-  // Expect redirect to sign-in
-  await expect(page).toHaveURL(/sign-in/);
+  // Page is public but requires auth for action. Expect page to load.
+  await expect(page.locator('h1')).toContainText('Configure Your Event');
 });

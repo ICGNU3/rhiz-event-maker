@@ -1,4 +1,4 @@
-import { PersonRead } from "@/lib/protocol-sdk/types";
+import { PersonRead } from "@rhiz/protocol-sdk";
 
 // ... existing types ...
 

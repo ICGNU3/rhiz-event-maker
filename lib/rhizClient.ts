@@ -1,5 +1,5 @@
-import { RhizClient, InteractionCreate, PeopleClient, NlpClient, ContextTagsClient, ContextTagCreate, ZkClient, IdentityHelper } from "./protocol-sdk";
-import { RelationshipDetail, OpportunityMatch, PersonRead } from "./protocol-sdk/types";
+import { RhizClient, InteractionCreate, PeopleClient, NlpClient, ContextTagsClient, ContextTagCreate, ZkClient, PeopleQueryParams } from "@rhiz/protocol-sdk";
+import { RelationshipDetail, OpportunityMatch, PersonRead } from "@rhiz/protocol-sdk";
 import { Session } from "./types";
 import { withTimeout } from "./errorHandling";
 
@@ -9,12 +9,6 @@ const getAccessToken = async () => process.env.RHIZ_API_TOKEN || null;
 export const ownerId = process.env.RHIZ_OWNER_ID || "event-maker-app";
 
 export const client = new RhizClient({
-  baseUrl,
-  getAccessToken,
-});
-
-// Initialize Identity Helper (moved to protocol layer)
-const identityHelper = new IdentityHelper({
   baseUrl,
   getAccessToken,
 });
@@ -56,31 +50,47 @@ export const rhizClient = {
     avatarUrl?: string;
   }): Promise<{ id: string; externalUserId?: string; did?: string; handle?: string }> => {
     try {
-      // Use the Protocol SDK's IdentityHelper
-      const result = await withTimeout(
-        identityHelper.resolveIdentity({
-            ...args,
-            ownerId
-        }),
-        5000,
-        "Identity resolution timed out"
-      );
+      // Manual Identity Resolution since IdentityHelper is not exported
+      // 1. Try to find by Email
+      let existingPerson: PersonRead | null = null;
+      
+      if (args.email) {
+          const params: PeopleQueryParams = { owner_id: ownerId, email: args.email, limit: 1 };
+          const response = await peopleClient.listPeople(params);
+          if (response.people.length > 0) {
+              existingPerson = response.people[0];
+          }
+      }
 
-      console.log(result.isNew ? `Rhiz: Created new person ${result.id}` : `Rhiz: Found existing person ${result.id}`);
+      // 2. If not found, create
+      if (!existingPerson) {
+          const newPerson = await peopleClient.createPerson({
+              owner_id: ownerId,
+              legal_name: args.name || "Unknown",
+              preferred_name: args.name || "Unknown",
+              email: args.email,
+              tags: args.tags || [],
+              // external_id: args.externalUserId // If supported by SDK types, else store in metadata/attributes
+          });
+          existingPerson = newPerson;
+          
+          console.log(`Rhiz: Created new person ${newPerson.person_id}`);
+          
+          // FIRE AND FORGET: "Warm Start" Strategy (Seed Data)
+           rhizClient.enrichIdentity({ 
+              personId: newPerson.person_id, 
+              email: args.email 
+           }).catch(e => console.warn("Rhiz: Background enrichment failed", e));
 
-      if (result.isNew) {
-         // FIRE AND FORGET: "Warm Start" Strategy (Seed Data)
-         rhizClient.enrichIdentity({ 
-            personId: result.id, 
-            email: args.email 
-         }).catch(e => console.warn("Rhiz: Background enrichment failed", e));
+      } else {
+          console.log(`Rhiz: Found existing person ${existingPerson.person_id}`);
       }
 
       return {
-        id: result.id,
-        externalUserId: result.externalUserId,
-        did: result.did,
-        handle: result.handle,
+        id: existingPerson.person_id,
+        externalUserId: args.externalUserId,
+        did: existingPerson.did,
+        handle: existingPerson.handle,
       };
     } catch (error) {
       console.warn("Rhiz: Failed to ensure identity, using fallback", error);
@@ -217,9 +227,12 @@ export const rhizClient = {
     limit?: number;
   }): Promise<OpportunityMatch[]> => {
     try {
-      // Delegate to the Protocol's NLP Engine (currently mocked)
+      // Delegate to the Protocol's NLP Engine
       return await withTimeout(
-        nlpClient.findOpportunityMatches(),
+        nlpClient.findOpportunityMatches({
+            personId: args.identityId,
+            limit: args.limit
+        }), 
         5000,
         "Opportunity match fetch timed out"
       );

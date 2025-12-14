@@ -3,7 +3,7 @@
 import { stripe } from "@/lib/stripe";
 import { getEventBySlug } from "@/lib/services/events";
 import { auth } from "@clerk/nextjs/server";
-import { TicketTier } from "@/lib/types";
+import { TicketTier, EventAppConfig } from "@/lib/types";
 
 export async function createEventCheckoutSession(
     eventId: string, 
@@ -20,7 +20,8 @@ export async function createEventCheckoutSession(
         throw new Error("Event not found");
     }
 
-    const tier = event.config.ticketing?.tiers?.find((t: TicketTier) => t.id === tierId);
+    const config = event.config as unknown as EventAppConfig;
+    const tier = config.ticketing?.tiers?.find((t: TicketTier) => t.id === tierId);
     if (!tier) {
         throw new Error("Ticket tier not found");
     }
@@ -54,9 +55,9 @@ export async function createEventCheckoutSession(
                 price_data: {
                     currency: tier.currency || "usd",
                     product_data: {
-                        name: `${event.config.content.eventName} - ${tier.name}`,
+                        name: `${config.content?.eventName || 'Event'} - ${tier.name}`,
                         description: tier.description,
-                        images: event.config.branding?.logoUrl ? [event.config.branding.logoUrl] : undefined,
+                        images: config.branding?.logoUrl ? [config.branding.logoUrl] : undefined,
                     },
                     unit_amount: unitAmountCents,
                 },

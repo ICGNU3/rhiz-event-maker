@@ -70,7 +70,8 @@ describe('Event Services', () => {
             limit: vi.fn().mockResolvedValue([])
           })
         })
-      } as unknown);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
 
       const result = await getEventBySlug('non-existent');
       expect(result).toBeNull();
@@ -86,7 +87,8 @@ describe('Event Services', () => {
             }])
           })
         })
-      } as unknown);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
 
       const result = await getEventBySlug('test-event');
       expect(result).not.toBeNull();

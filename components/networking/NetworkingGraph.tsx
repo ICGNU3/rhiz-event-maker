@@ -7,7 +7,7 @@ import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { EASING, TRANSITIONS } from "./motion-utils";
 import { GRAPH_CONFIG } from "./graph.config";
 import { AlertCircle, RefreshCw } from "lucide-react";
-import { RelationshipDetail, OpportunityMatch } from "@/lib/protocol-sdk/types";
+import { RelationshipDetail, OpportunityMatch } from "@rhiz/protocol-sdk";
 
 import { GraphAttendee } from "@/lib/types";
 import { MatchmakingCard } from "../event/MatchmakingCard";
@@ -388,8 +388,8 @@ export function NetworkingGraph({
       return attendees.map((attendee, i) => {
         const angle = (i / attendees.length) * 360;
         const radian = (angle * Math.PI) / 180;
-        const x = Math.cos(radian) * radius;
-        const y = Math.sin(radian) * radius;
+        const x = Number((Math.cos(radian) * radius).toFixed(4));
+        const y = Number((Math.sin(radian) * radius).toFixed(4));
         const personId = attendee?.person_id;
         
         return {
